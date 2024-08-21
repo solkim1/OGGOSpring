@@ -23,18 +23,29 @@ public class UserController {
 	
 	@PostMapping(value = "/join")
 	public void join(@RequestBody User user) {
-		System.out.println(user.getUserId());
-		System.out.println(user.getUserEmail());
-		System.out.println(user.getUserPw());
+//		System.out.println(user.getUserId());
+//		System.out.println(user.getUserEmail());
+//		System.out.println(user.getUserPw());
 		mapper.join(user);
 	}
-	@GetMapping(value = "checkId")
+	
+	@GetMapping(value = "/checkId")
 	public HashMap<String,Object> checkId(@RequestParam String userId){
 		System.out.println("아이디체크");
 		boolean available = !mapper.existsByUserId(userId);
         HashMap<String, Object> response = new HashMap<>();
         response.put("available", available);
 		return response;
-		
 	}
+	
+	@GetMapping(value = "/checkEmail")
+	public HashMap<String,Object> checkEmail(@RequestParam String userEmail){
+		System.out.println("이메일체크");
+		boolean available = !mapper.existsByUserEmail(userEmail);
+        HashMap<String, Object> response = new HashMap<>();
+        response.put("available", available);
+		return response;
+	}
+	
+	
 }
