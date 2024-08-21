@@ -4,7 +4,7 @@
 
 	<insert id="join" parameterType="User">
 		INSERT INTO tb_user
-		(user_id,user_pw,user_email) VALUES (#{userId},#{userEmail},#{userPw})
+		(user_id,user_pw,user_email) VALUES (#{userId},#{userPw},#{userEmail})
 	</insert>
 
 </mapper>
