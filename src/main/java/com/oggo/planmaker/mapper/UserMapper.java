@@ -9,6 +9,8 @@ import com.oggo.planmaker.model.User;
 public interface UserMapper {
 
 	void join(User user);
+	
+	User login(User user);
 
 	@Select("SELECT COUNT(*) > 0 FROM tb_user WHERE user_id = #{userId}")
 	boolean existsByUserId(String userId);
