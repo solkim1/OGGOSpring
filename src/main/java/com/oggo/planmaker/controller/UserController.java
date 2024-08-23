@@ -4,7 +4,6 @@ import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +19,7 @@ public class UserController {
 
 	@Autowired
 	UserMapper mapper;
-	
+
 	@PostMapping(value = "/join")
 	public void join(@RequestBody User user) {
 //		System.out.println(user.getUserId());
@@ -28,24 +27,23 @@ public class UserController {
 //		System.out.println(user.getUserPw());
 		mapper.join(user);
 	}
-	
+
 	@GetMapping(value = "/checkId")
-	public HashMap<String,Object> checkId(@RequestParam String userId){
+	public HashMap<String, Object> checkId(@RequestParam String userId) {
 		System.out.println("아이디체크");
 		boolean available = !mapper.existsByUserId(userId);
-        HashMap<String, Object> response = new HashMap<>();
-        response.put("available", available);
+		HashMap<String, Object> response = new HashMap<>();
+		response.put("available", available);
 		return response;
 	}
-	
+
 	@GetMapping(value = "/checkEmail")
-	public HashMap<String,Object> checkEmail(@RequestParam String userEmail){
+	public HashMap<String, Object> checkEmail(@RequestParam String userEmail) {
 		System.out.println("이메일체크");
 		boolean available = !mapper.existsByUserEmail(userEmail);
-        HashMap<String, Object> response = new HashMap<>();
-        response.put("available", available);
+		HashMap<String, Object> response = new HashMap<>();
+		response.put("available", available);
 		return response;
 	}
-	
-	
+
 }
