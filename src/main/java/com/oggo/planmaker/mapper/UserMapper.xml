@@ -7,4 +7,15 @@
 		(user_id,user_pw,user_email) VALUES (#{userId},#{userPw},#{userEmail})
 	</insert>
 
+	<select id="login" parameterType="User" resultMap="userResultMap">
+		SELECT *
+		FROM tb_user
+		WHERE user_id = #{userId} AND user_pw = #{userPw}
+	</select>
+	
+	<resultMap id="userResultMap" type="User">
+		<id property="userId" column="user_id" />
+		<result property="userEmail" column="user_email" />
+	</resultMap>
+
 </mapper>
