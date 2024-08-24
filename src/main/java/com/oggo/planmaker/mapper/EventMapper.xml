@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "file:///C:/Users/sr139/OneDrive/Desktop/planmakerSpring/src/main/resources/mybatis-3-mapper.dtd">
+<mapper namespace="com.oggo.planmaker.mapper.EventMapper">
+
+    <insert id="insertEvents" parameterType="java.util.List">
+        INSERT INTO events (id, summary, start_time, end_time, description, location)
+        VALUES
+        <foreach collection="list" item="event" separator=",">
+            (#{event.id}, #{event.summary}, #{event.startTime}, #{event.endTime}, #{event.description}, #{event.location})
+        </foreach>
+    </insert>
+
+    <select id="selectAllEvents" resultType="com.oggo.planmaker.model.Event">
+        SELECT id, summary, start_time as startTime, end_time as endTime, description, location FROM events
+    </select>
+
+</mapper>
+
