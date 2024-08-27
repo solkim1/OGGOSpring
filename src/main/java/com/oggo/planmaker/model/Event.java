@@ -14,7 +14,7 @@ public class Event {
     private String description;
     private String location;
 
-    // Getters and setters
+    
     public String getId() {
         return id;
     }
