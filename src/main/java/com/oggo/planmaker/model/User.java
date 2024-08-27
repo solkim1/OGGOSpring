@@ -6,6 +6,8 @@ import lombok.Data;
 public class User {
 
 	private String userId;
+	
+	private String userNick;
 
 	private String userPw;
 	
@@ -17,6 +19,14 @@ public class User {
 
 	public void setUserId(String userId) {
 		this.userId = userId;
+	}
+	
+	public String getUserNick() {
+		return userNick;
+	}
+
+	public void setUserNick(String userNick) {
+		this.userNick = userNick;
 	}
 
 	public String getUserPw() {

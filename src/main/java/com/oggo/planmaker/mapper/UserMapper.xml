@@ -5,20 +5,38 @@
 
 <mapper namespace="com.oggo.planmaker.mapper.UserMapper">
 
-	<insert id="join" parameterType="User">
-		INSERT INTO tb_user
-		(user_id,user_pw,user_email) VALUES (#{userId},#{userPw},#{userEmail})
-	</insert>
-
-	<select id="login" parameterType="User" resultMap="userResultMap">
-		SELECT *
-		FROM tb_user
-		WHERE user_id = #{userId} AND user_pw = #{userPw}
-	</select>
-	
 	<resultMap id="userResultMap" type="User">
 		<id property="userId" column="user_id" />
+		<result property="userNick" column="user_Nick" />
 		<result property="userEmail" column="user_email" />
 	</resultMap>
+
+	<insert id="join" parameterType="User">
+		INSERT INTO tb_user
+		(user_id, user_nick, user_pw, user_email) VALUES
+		(#{userId} ,#{userNick} ,#{userPw} ,#{userEmail})
+	</insert>
+
+	<select id="login" parameterType="User"
+		resultMap="userResultMap">
+		SELECT *
+		FROM tb_user
+		WHERE user_id = #{userId} AND user_pw =
+		#{userPw}
+	</select>
+
+	<select id="firstCheck" parameterType="User"
+		resultMap="userResultMap">
+		SELECT *
+		FROM tb_user
+		WHERE user_id = #{userId} AND user_nick
+		= #{userNick} AND user_email = #{userEmail}
+	</select>
+
+	<insert id="googleJoin">
+		INSERT INTO tb_user
+		(user_id ,user_nick ,user_email, is_google)
+		VALUES (#{userId} ,#{userNick} ,#{userEmail}, 'Y')
+	</insert>
 
 </mapper>

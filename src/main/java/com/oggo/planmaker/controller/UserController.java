@@ -24,37 +24,41 @@ public class UserController {
 
 	@PostMapping(value = "/join")
 	public void join(@RequestBody User user) {
-//		System.out.println(user.getUserId());
-//		System.out.println(user.getUserEmail());
-//		System.out.println(user.getUserPw());
 		mapper.join(user);
 	}
+
 	@PostMapping(value = "/login")
 	public ResponseEntity<?> login(@RequestBody User user) {
-	    // 입력 검증
-	    if (user == null || user.getUserPw() == null) {
-	        return ResponseEntity.badRequest().body("Invalid input.");
-	    }
+		System.out.println("123");
+		
+		// 입력 검증
+		if (user == null || user.getUserPw() == null) {
+			return ResponseEntity.badRequest().body("입력이 잘못되었습니다.");
+		}
+		try {
+			User loginUser = mapper.login(user);
 
-	    try {
-	        User loginUser = mapper.login(user);
-
-	        // 사용자 정보 확인
-	        if (loginUser != null) {
-	            System.out.println(loginUser.getUserId());
-	            System.out.println(loginUser.getUserEmail());
-	            return ResponseEntity.ok(loginUser);
-	        } else {
-	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password.");
-	        }
-	    } catch (Exception e) {
-	        // 예외 처리
-	        e.printStackTrace();
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while processing your request.");
-	    }
+			// 사용자 정보 확인
+			if (loginUser != null) {
+				return ResponseEntity.ok(loginUser);
+			} else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("이메일이나 비밀번호가 잘못되었습니다.");
+			}
+		} catch (Exception e) {
+			// 예외 처리
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("요청을 처리하는 동안 오류가 발생했습니다");
+		}
 	}
 
-	
+	@PostMapping(value = "/googleLogin")
+	public void googleLogin(@RequestBody User user) {
+		System.out.println(user.toString());
+		User isUser = mapper.firstCheck(user);
+		if (isUser == null) {
+			mapper.googleJoin(user);
+		}
+	}
 
 	@GetMapping(value = "/checkId")
 	public HashMap<String, Object> checkId(@RequestParam String userId) {
