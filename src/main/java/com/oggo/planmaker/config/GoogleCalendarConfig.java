@@ -36,6 +36,7 @@ public class GoogleCalendarConfig {
             GoogleCredentials credentials = GoogleCredentials.fromStream(resource.getInputStream())
                     .createScoped(Collections.singleton(CalendarScopes.CALENDAR_READONLY));
             System.out.println("Google Credentials File Path: " + credentialsFilePath);
+
             return new Calendar.Builder(GoogleNetHttpTransport.newTrustedTransport(),
                     JacksonFactory.getDefaultInstance(), new HttpCredentialsAdapter(credentials))
                     .setApplicationName("Spring Boot Google Calendar API").build();
@@ -45,6 +46,7 @@ public class GoogleCalendarConfig {
         } catch (GeneralSecurityException e) {
             throw new RuntimeException("Failed to create Google Calendar service due to security exception", e);
             
+
         }
     }
 }

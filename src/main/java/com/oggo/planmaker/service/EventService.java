@@ -10,6 +10,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.DateTime;
@@ -18,9 +19,12 @@ import com.google.api.services.calendar.model.Events;
 import com.oggo.planmaker.mapper.EventMapper;
 import com.oggo.planmaker.config.GoogleCalendarConfig;
 import com.oggo.planmaker.model.Event;
+import com.oggo.planmaker.model.Event;
+import com.oggo.planmaker.config.GoogleCalendarConfig;
 
 @Service
 public class EventService {
+
     @Autowired
     private EventMapper eventMapper;
 
@@ -36,31 +40,33 @@ public class EventService {
     }
 
     public List<Event> getGoogleCalendarEvents(String accessToken) throws IOException {
-        try {
-            Calendar service = new Calendar.Builder(GoogleNetHttpTransport.newTrustedTransport(), JacksonFactory.getDefaultInstance(), null)
-                    .setApplicationName("Plan Maker")
-                    .build();
 
-            DateTime now = new DateTime(System.currentTimeMillis());
-            Events events = service.events().list("primary")
-                    .setMaxResults(10)
-                    .setTimeMin(now)
-                    .setOrderBy("startTime")
-                    .setSingleEvents(true)
-                    .execute();
+        Calendar service = googleCalendarConfig.googleCalendarService();
 
-            List<com.google.api.services.calendar.model.Event> items = events.getItems();
-            List<Event> convertedEvents = new ArrayList<>();
+        Events events = service.events().list("primary")
+            .setOauthToken(accessToken)
+            .setMaxResults(10)
+            .setTimeMin(new DateTime(System.currentTimeMillis()))
+            .setOrderBy("startTime")
+            .setSingleEvents(true)
+            .execute();
 
-            for (com.google.api.services.calendar.model.Event googleEvent : items) {
-                Event event = convertGoogleEventToEvent(googleEvent);
-                convertedEvents.add(event);
+        List<Event> eventList = new ArrayList<>();
+        for (com.google.api.services.calendar.model.Event googleEvent : events.getItems()) {
+            Event event = new Event();
+            event.setId(googleEvent.getId());
+            event.setSummary(googleEvent.getSummary());
+            event.setDescription(googleEvent.getDescription());
+            event.setLocation(googleEvent.getLocation());
+            if (googleEvent.getStart().getDateTime() != null) {
+                event.setStartTime(LocalDateTime.ofInstant(Instant.ofEpochMilli(googleEvent.getStart().getDateTime().getValue()), ZoneId.systemDefault()));
             }
-
-            return convertedEvents;
-        } catch (Exception e) {
-            throw new IOException("Error fetching Google Calendar events", e);
+            if (googleEvent.getEnd().getDateTime() != null) {
+                event.setEndTime(LocalDateTime.ofInstant(Instant.ofEpochMilli(googleEvent.getEnd().getDateTime().getValue()), ZoneId.systemDefault()));
+            }
+            eventList.add(event);
         }
+        return eventList;
     }
 
     public void syncGoogleCalendarEvents(String accessToken) throws IOException {
@@ -92,3 +98,4 @@ public class EventService {
         return event;
     }
 }
+
