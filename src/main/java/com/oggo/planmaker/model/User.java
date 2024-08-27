@@ -6,13 +6,13 @@ import lombok.Data;
 public class User {
 
 	private String userId;
-	
+
 	private String userNick;
 
 	private String userPw;
-	
+
 	private String userEmail;
-	
+
 	public String getUserId() {
 		return userId;
 	}
@@ -20,7 +20,7 @@ public class User {
 	public void setUserId(String userId) {
 		this.userId = userId;
 	}
-	
+
 	public String getUserNick() {
 		return userNick;
 	}
@@ -44,4 +44,5 @@ public class User {
 	public void setUserEmail(String userEmail) {
 		this.userEmail = userEmail;
 	}
+
 }

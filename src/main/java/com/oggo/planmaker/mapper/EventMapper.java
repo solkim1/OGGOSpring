@@ -8,4 +8,6 @@ import com.oggo.planmaker.model.Event;
 public interface EventMapper {
     void insertEvents(List<Event> events);
     List<Event> selectAllEvents();
+
 }
+
