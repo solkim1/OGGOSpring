@@ -10,7 +10,7 @@
         </foreach>
     </insert>
 
-    <select id="selectAllEvents" resultType="Event">
+    <select id="selectAllEvents" resultType="com.oggo.planmaker.model.Event">
         SELECT id, summary, start_time as startTime, end_time as endTime, description, location FROM events
     </select>
 
