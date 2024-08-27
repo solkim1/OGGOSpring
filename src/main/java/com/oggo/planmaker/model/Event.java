@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import lombok.Data;
 
 @Data
-
 public class Event {
     private String id;
     private String summary;
@@ -14,7 +13,7 @@ public class Event {
     private String description;
     private String location;
 
-    
+
     public String getId() {
         return id;
     }
@@ -63,3 +62,4 @@ public class Event {
         this.location = location;
     }
 }
+
