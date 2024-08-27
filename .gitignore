@@ -1,5 +1,5 @@
-# Created by https://www.toptal.com/developers/gitignore/api/visualstudiocode,java,windows,react,eclipse
-# Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode,java,windows,react,eclipse
+# Created by https://www.toptal.com/developers/gitignore/api/java,eclipse,visualstudiocode,react,windows
+# Edit at https://www.toptal.com/developers/gitignore?templates=java,eclipse,visualstudiocode,react,windows
 
 ### Eclipse ###
 .metadata
@@ -58,6 +58,10 @@ local.properties
 .cache-main
 .scala_dependencies
 .worksheet
+
+# Uncomment this line if you wish to ignore the project description file.
+# Typically, this file would be tracked if it contains build/dependency configurations:
+#.project
 
 ### Eclipse Patch ###
 # Spring Boot Tooling
@@ -149,42 +153,4 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-### Maven Wrapper ###
-!.mvn/wrapper/maven-wrapper.jar
-
-### Maven Target Directories ###
-!**/src/main/**/target/
-!**/src/test/**/target/
-
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-### VS Code ###
-.vscode/
-
-### HELP.md ###
-HELP.md
-
-# End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,java,windows,react,eclipse
+# End of https://www.toptal.com/developers/gitignore/api/java,eclipse,visualstudiocode,react,windows
