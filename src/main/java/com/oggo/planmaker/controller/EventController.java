@@ -1,5 +1,6 @@
 package com.oggo.planmaker.controller;
 
+
 import java.util.Collections;
 import java.util.List;
 
@@ -43,4 +44,6 @@ public class EventController {
             // 적절한 예외 처리
         }
     }
+
 }
+

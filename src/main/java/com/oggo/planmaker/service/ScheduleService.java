@@ -2,8 +2,8 @@ package com.oggo.planmaker.service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -178,5 +178,27 @@ public class ScheduleService {
             log.error("JSON 파싱 오류: " + e.getMessage(), e);
             return null;
         }
+    }
+
+    public List<Schedule> getAllSchedules(String userId) {
+        return scheduleMapper.findAllSchedulesByUserId(userId);
+    }
+
+    public List<Schedule> getSchedulesByBusinessFlag(String userId, String isBusiness) {
+        return scheduleMapper.findByBusinessFlag(userId, isBusiness);
+    }
+
+    public List<Schedule> getImportantSchedules(String userId) {
+        return scheduleMapper.findImportantSchedules(userId);
+    }
+
+    public void toggleImportance(int scheNum) {
+        scheduleMapper.updateImportanceByScheNum(scheNum);
+    }
+
+
+
+    public void updateSchedule(int scheNum, String scheTitle, String scheDesc) {
+        scheduleMapper.updateSchedule(scheNum, scheTitle, scheDesc);
     }
 }
