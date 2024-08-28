@@ -3,18 +3,26 @@ package com.oggo.planmaker.mapper;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import com.oggo.planmaker.model.Schedule;
 
 @Mapper
 public interface ScheduleMapper {
 
-	void insertSchedule(Schedule schedule);
-    List<Schedule> findAllSchedulesByUserId(String userId);
-    List<Schedule> findByBusinessFlag(String userId, String isBusiness);
-    List<Schedule> findImportantSchedules(String userId);
-    void updateImportanceByScheNum(int scheNum);
-    void deleteByScheNum(int scheNum);
-    void updateSchedule(int scheIdx, String scheTitle, String scheDesc);
+	List<Schedule> findAllSchedulesByUserId(@Param("userId") String userId);
+
+    List<Schedule> findByBusinessFlag(@Param("userId") String userId, @Param("isBusiness") String isBusiness);
+
+    List<Schedule> findImportantSchedules(@Param("userId") String userId);
+
+    void updateImportanceByScheNum(@Param("scheNum") int scheNum);
+
+    void deleteByScheNum(@Param("scheNum") int scheNum);
+
+    void updateSchedule(@Param("scheNum") int scheNum, @Param("scheTitle") String scheTitle, @Param("scheDesc") String scheDesc);
+
+    void insertSchedule(Schedule schedule);  // 일정 저장 쿼리 추가
+    
     int getLastScheNum();
 }

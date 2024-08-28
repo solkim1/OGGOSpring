@@ -47,46 +47,41 @@ public class ScheduleController {
                 });
     }
 
-    @PostMapping("/save")
-    public ResponseEntity<String> saveSchedule(
-            @RequestParam String userId,
-            @RequestParam String startDate,
-            @RequestParam String endDate) {
-        try {
-            scheduleService.saveItinerary(userId, startDate, endDate);
-            return ResponseEntity.ok("일정이 성공적으로 저장되었습니다.");
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("일정 저장 중 오류가 발생했습니다: " + e.getMessage());
-        }
+    @GetMapping("/all")
+    public ResponseEntity<List<Schedule>> getAllSchedules(@RequestParam("userId") String userId) {
+        return ResponseEntity.ok(scheduleService.getAllSchedules(userId));
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Schedule>> getUserSchedules(@PathVariable String userId) {
-        try {
-            List<Schedule> schedules = scheduleService.getUserSchedules(userId);
-            return ResponseEntity.ok(schedules);
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(null);
-        }
+    @GetMapping("/travel")
+    public ResponseEntity<List<Schedule>> getTravelSchedules(@RequestParam("userId") String userId) {
+        return ResponseEntity.ok(scheduleService.getSchedulesByBusinessFlag(userId, "N"));
+    }
+
+    @GetMapping("/business")
+    public ResponseEntity<List<Schedule>> getBusinessSchedules(@RequestParam("userId") String userId) {
+        return ResponseEntity.ok(scheduleService.getSchedulesByBusinessFlag(userId, "Y"));
+    }
+
+    @GetMapping("/important")
+    public ResponseEntity<List<Schedule>> getImportantSchedules(@RequestParam("userId") String userId) {
+        return ResponseEntity.ok(scheduleService.getImportantSchedules(userId));
+    }
+
+    @PutMapping("/toggleImportance/{scheNum}")
+    public ResponseEntity<Void> toggleImportance(@PathVariable int scheNum) {
+        scheduleService.toggleImportance(scheNum);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/delete/{scheNum}")
+    public ResponseEntity<Void> deleteSchedule(@PathVariable int scheNum) {
+        scheduleService.deleteSchedule(scheNum);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/update")
-    public ResponseEntity<String> updateSchedule(@RequestBody Schedule schedule) {
-        try {
-            scheduleService.updateSchedule(schedule);
-            return ResponseEntity.ok("일정이 성공적으로 업데이트되었습니다.");
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("일정 업데이트 중 오류가 발생했습니다: " + e.getMessage());
-        }
-    }
-
-    @DeleteMapping("/{scheduleId}")
-    public ResponseEntity<String> deleteSchedule(@PathVariable int scheduleId) {
-        try {
-            scheduleService.deleteSchedule(scheduleId);
-            return ResponseEntity.ok("일정이 성공적으로 삭제되었습니다.");
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("일정 삭제 중 오류가 발생했습니다: " + e.getMessage());
-        }
+    public ResponseEntity<Void> updateSchedule(@RequestParam int scheNum, @RequestParam String scheTitle, @RequestParam String scheDesc) {
+        scheduleService.updateSchedule(scheNum, scheTitle, scheDesc);
+        return ResponseEntity.ok().build();
     }
 }
