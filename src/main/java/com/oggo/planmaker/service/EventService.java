@@ -10,10 +10,15 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.Events;
 import com.oggo.planmaker.mapper.EventMapper;
+import com.oggo.planmaker.config.GoogleCalendarConfig;
+import com.oggo.planmaker.model.Event;
 import com.oggo.planmaker.model.Event;
 import com.oggo.planmaker.config.GoogleCalendarConfig;
 
@@ -35,6 +40,7 @@ public class EventService {
     }
 
     public List<Event> getGoogleCalendarEvents(String accessToken) throws IOException {
+
         Calendar service = googleCalendarConfig.googleCalendarService();
 
         Events events = service.events().list("primary")
@@ -67,4 +73,29 @@ public class EventService {
         List<Event> googleEvents = getGoogleCalendarEvents(accessToken);
         saveEvents(googleEvents);
     }
+
+    private Event convertGoogleEventToEvent(com.google.api.services.calendar.model.Event googleEvent) {
+        Event event = new Event();
+        event.setId(googleEvent.getId());
+        event.setSummary(googleEvent.getSummary());
+        event.setDescription(googleEvent.getDescription());
+        event.setLocation(googleEvent.getLocation());
+        
+        if (googleEvent.getStart() != null && googleEvent.getStart().getDateTime() != null) {
+            event.setStartTime(LocalDateTime.ofInstant(
+                Instant.ofEpochMilli(googleEvent.getStart().getDateTime().getValue()),
+                ZoneId.systemDefault()
+            ));
+        }
+        
+        if (googleEvent.getEnd() != null && googleEvent.getEnd().getDateTime() != null) {
+            event.setEndTime(LocalDateTime.ofInstant(
+                Instant.ofEpochMilli(googleEvent.getEnd().getDateTime().getValue()),
+                ZoneId.systemDefault()
+            ));
+        }
+
+        return event;
+    }
 }
+

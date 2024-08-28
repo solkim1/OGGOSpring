@@ -1,15 +1,17 @@
 package com.oggo.planmaker.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class User {
 
 	private String userId;
+
+	private String userNick;
+
+	private String userPw;
+
+	private String userEmail;
 
 	public String getUserId() {
 		return userId;
@@ -17,6 +19,14 @@ public class User {
 
 	public void setUserId(String userId) {
 		this.userId = userId;
+	}
+
+	public String getUserNick() {
+		return userNick;
+	}
+
+	public void setUserNick(String userNick) {
+		this.userNick = userNick;
 	}
 
 	public String getUserPw() {
@@ -34,9 +44,5 @@ public class User {
 	public void setUserEmail(String userEmail) {
 		this.userEmail = userEmail;
 	}
-
-	private String userPw;
-
-	private String userEmail;
 
 }

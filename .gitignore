@@ -1,10 +1,17 @@
 <<<<<<< HEAD
+HELP.md
+=======
+<<<<<<< HEAD
 # Maven
+>>>>>>> b8098034babf1872240654083b63547861dbc1c9
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+<<<<<<< HEAD
+### STS ###
+=======
 # Eclipse
 =======
 # Created by https://www.toptal.com/developers/gitignore/api/visualstudiocode,java,windows,react,eclipse
@@ -167,6 +174,7 @@ $RECYCLE.BIN/
 
 ### STS ###
 >>>>>>> 248d0b535d0bce8242dcbe13ba3cb81aa779e3da
+>>>>>>> b8098034babf1872240654083b63547861dbc1c9
 .apt_generated
 .classpath
 .factorypath
@@ -176,21 +184,30 @@ $RECYCLE.BIN/
 .sts4-cache
 
 <<<<<<< HEAD
+### IntelliJ IDEA ###
+.idea
+=======
+<<<<<<< HEAD
 # IntelliJ IDEA
 .idea/
 =======
 ### IntelliJ IDEA ###
 .idea
 >>>>>>> 248d0b535d0bce8242dcbe13ba3cb81aa779e3da
+>>>>>>> b8098034babf1872240654083b63547861dbc1c9
 *.iws
 *.iml
 *.ipr
 
 <<<<<<< HEAD
+### NetBeans ###
+=======
+<<<<<<< HEAD
 # NetBeans
 =======
 ### NetBeans ###
 >>>>>>> 248d0b535d0bce8242dcbe13ba3cb81aa779e3da
+>>>>>>> b8098034babf1872240654083b63547861dbc1c9
 /nbproject/private/
 /nbbuild/
 /dist/
@@ -200,6 +217,10 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
+<<<<<<< HEAD
+### VS Code ###
+.vscode/
+=======
 <<<<<<< HEAD
 # VS Code
 .vscode/
@@ -215,3 +236,4 @@ HELP.md
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,java,windows,react,eclipse
 >>>>>>> 248d0b535d0bce8242dcbe13ba3cb81aa779e3da
+>>>>>>> b8098034babf1872240654083b63547861dbc1c9

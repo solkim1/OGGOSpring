@@ -2,6 +2,9 @@ package com.oggo.planmaker.model;
 
 import java.time.LocalDateTime;
 
+import lombok.Data;
+
+@Data
 public class Event {
     private String id;
     private String summary;
@@ -10,7 +13,7 @@ public class Event {
     private String description;
     private String location;
 
-    // Getters and setters
+
     public String getId() {
         return id;
     }
@@ -59,3 +62,4 @@ public class Event {
         this.location = location;
     }
 }
+
