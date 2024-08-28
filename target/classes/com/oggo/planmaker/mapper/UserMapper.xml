@@ -13,8 +13,10 @@
 
 	<insert id="join" parameterType="User">
 		INSERT INTO tb_user
-		(user_id, user_nick, user_pw, user_email) VALUES
-		(#{userId} ,#{userNick} ,#{userPw} ,#{userEmail})
+		(user_id,
+		user_nick, user_pw, user_email) VALUES
+		(#{userId} ,#{userNick}
+		,#{userPw} ,#{userEmail})
 	</insert>
 
 	<select id="login" parameterType="User"
@@ -23,6 +25,13 @@
 		FROM tb_user
 		WHERE user_id = #{userId} AND user_pw =
 		#{userPw}
+	</select>
+
+	<select id="googleLogin" parameterType="User"
+		resultMap="userResultMap">
+		SELECT *
+		FROM tb_user
+		WHERE user_id = #{userId}
 	</select>
 
 	<select id="firstCheck" parameterType="User"
@@ -39,4 +48,16 @@
 		VALUES (#{userId} ,#{userNick} ,#{userEmail}, 'Y')
 	</insert>
 
+	<update id="editProfile" parameterType="User">
+		UPDATE tb_user
+		SET user_nick = #{userNick} , user_pw = #{userPw}
+		WHERE user_id = #{userId}
+		AND user_email = #{userEmail}
+	</update>
+	
+	<select id="getUserById" parameterType="String" 
+	resultMap="userResultMap">
+		SELECT * FROM tb_user
+		WHERE user_id = #{userId}
+	</select>
 </mapper>
