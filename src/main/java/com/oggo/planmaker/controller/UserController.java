@@ -5,6 +5,7 @@ import java.util.HashMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,12 +30,6 @@ public class UserController {
 
 	@PostMapping(value = "/login")
 	public ResponseEntity<?> login(@RequestBody User user) {
-		System.out.println("123");
-		
-		// 입력 검증
-		if (user == null || user.getUserPw() == null) {
-			return ResponseEntity.badRequest().body("입력이 잘못되었습니다.");
-		}
 		try {
 			User loginUser = mapper.login(user);
 
@@ -52,12 +47,15 @@ public class UserController {
 	}
 
 	@PostMapping(value = "/googleLogin")
-	public void googleLogin(@RequestBody User user) {
+	public User googleLogin(@RequestBody User user) {
 		System.out.println(user.toString());
 		User isUser = mapper.firstCheck(user);
 		if (isUser == null) {
 			mapper.googleJoin(user);
 		}
+		User checkuser = mapper.googleLogin(isUser);
+		System.out.println(checkuser.toString());
+		return checkuser;
 	}
 
 	@GetMapping(value = "/checkId")
@@ -78,4 +76,15 @@ public class UserController {
 		return response;
 	}
 
+	@Transactional
+	@PostMapping(value = "/editProfile")
+	public User editProfile(@RequestBody User user) {
+	    System.out.println(user.toString());
+	    User returnUser = null;
+	    int row = mapper.editProfile(user);
+	    if (row > 0) {
+	    	returnUser = mapper.getUserById(user.getUserId());
+	    }
+	    return returnUser;
+	}
 }
