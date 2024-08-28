@@ -1,7 +1,6 @@
 package com.oggo.planmaker.model;
 
 public class Schedule {
-
     private int scheIdx;
     private String userId;
     private String scheTitle;
@@ -11,16 +10,28 @@ public class Schedule {
     private String scheEdDt;
     private String scheEdTm;
     private String isBusiness;
-    private String scheColor;
-    private String createdAt;
-    private String updatedAt;
     private String isImportance;
     private int poiIdx;
     private int scheNum;
-
     // Getters and Setters
 
-    public int getScheIdx() {
+    public int getPoiIdx() {
+		return poiIdx;
+	}
+
+	public void setPoiIdx(int poiIdx) {
+		this.poiIdx = poiIdx;
+	}
+
+	public int getScheNum() {
+		return scheNum;
+	}
+
+	public void setScheNum(int scheNum) {
+		this.scheNum = scheNum;
+	}
+
+	public int getScheIdx() {
         return scheIdx;
     }
 
@@ -92,51 +103,11 @@ public class Schedule {
         this.isBusiness = isBusiness;
     }
 
-    public String getScheColor() {
-        return scheColor;
-    }
-
-    public void setScheColor(String scheColor) {
-        this.scheColor = scheColor;
-    }
-
-    public String getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(String createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public String getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(String updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
     public String getIsImportance() {
         return isImportance;
     }
 
     public void setIsImportance(String isImportance) {
         this.isImportance = isImportance;
-    }
-
-    public int getPoiIdx() {
-        return poiIdx;
-    }
-
-    public void setPoiIdx(int poiIdx) {
-        this.poiIdx = poiIdx;
-    }
-
-    public int getScheNum() {
-        return scheNum;
-    }
-
-    public void setScheNum(int scheNum) {
-        this.scheNum = scheNum;
     }
 }
