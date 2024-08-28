@@ -1,128 +1,182 @@
 package com.oggo.planmaker.service;
 
-import com.oggo.planmaker.mapper.ScheduleMapper;
-import com.oggo.planmaker.model.Schedule;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CompletableFuture;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.oggo.planmaker.mapper.PoiMapper;
+import com.oggo.planmaker.mapper.ScheduleMapper;
+import com.oggo.planmaker.model.Poi;
+import com.oggo.planmaker.model.Schedule;
 
 @Service
 public class ScheduleService {
 
+    private static final Logger log = LoggerFactory.getLogger(ScheduleService.class);
+
     @Autowired
     private ScheduleMapper scheduleMapper;
 
-    private static final String OPENAI_API_URL = "https://api.openai.com/v1/completions";
-    private static final String OPENAI_API_KEY = "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";
+    @Autowired
+    private PoiMapper poiMapper;
 
-    // 여행 선호도 저장 메서드
-    public void generateSchedule(Map<String, String> preferences, String additionalData) {
-        if (preferences.get("user_id") == null) {
-            throw new IllegalArgumentException("user_id cannot be null");
-        }
-        // Step 1: Save travel preferences to the database
-        scheduleMapper.insertTravelPreferences(preferences);
+    @Autowired
+    private OpenAIService openAIService;
 
-        // Step 2: Use OpenAI API (or any other service) to generate a travel schedule based on preferences
-        // Assuming additionalData would be the result from the AI model or any other processing
+    private final Map<String, Map<String, List<Map<String, Object>>>> temporaryItineraries = new ConcurrentHashMap<>();
+
+    public CompletableFuture<Map<String, List<Map<String, Object>>>> generateItinerary(String userId, int days, String ageGroup, String gender, String groupSize, String theme, String startDate, String endDate) {
+        String prompt = generatePrompt(days, ageGroup, gender, groupSize, theme, startDate, endDate);
         
-        // Save the generated schedule to the database
-        if (additionalData != null) {
-            scheduleMapper.insertGeneratedSchedule(additionalData);
-        }
+        return openAIService.generateItinerary(prompt)
+            .thenApply(aiGeneratedText -> {
+                log.info("AI Generated Text: " + aiGeneratedText);
+                Map<String, List<Map<String, Object>>> itinerary = parseAIResponse(aiGeneratedText);
+
+                if (itinerary == null) {
+                    log.error("Itinerary parsing failed. Check the AI response.");
+                    throw new RuntimeException("일정 생성 중 오류가 발생했습니다. AI 응답을 확인하세요.");
+                }
+
+                temporaryItineraries.put(userId, itinerary);
+                return itinerary;
+            });
     }
 
-    // 일정 생성 메서드
-    public void generateSchedule(Map<String, String> preferences) {
-        // OpenAI API 요청을 위한 설정
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(OPENAI_API_KEY);
+    @Transactional
+    public void saveItinerary(String userId, String startDate, String endDate) {
+        Map<String, List<Map<String, Object>>> itinerary = temporaryItineraries.get(userId);
+        if (itinerary == null) {
+            throw new RuntimeException("No temporary itinerary found for user: " + userId);
+        }
 
-        // OpenAI API에 보낼 요청 데이터 생성
-        String prompt = generatePrompt(preferences);
-        Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("model", "text-davinci-003");
-        requestBody.put("prompt", prompt);
-        requestBody.put("max_tokens", 1000);
+        int scheNum = scheduleMapper.getLastScheNum() + 1;
+        String scheTitle = "서울 여행"; // 타이틀 생성 로직 필요 시 추가
+        String scheDesc = String.format("%s부터 %s까지의 여행 일정", startDate, endDate);
 
-        HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
+        for (Map.Entry<String, List<Map<String, Object>>> entry : itinerary.entrySet()) {
+            List<Map<String, Object>> dayPlans = entry.getValue();
 
-        try {
-            // OpenAI API 호출
-            Map<String, Object> response = restTemplate.postForObject(OPENAI_API_URL, request, Map.class);
+            for (Map<String, Object> plan : dayPlans) {
+                String poiName = (String) plan.get("name");
+                Poi poi = poiMapper.findByName(poiName);
+                if (poi == null) {
+                    poi = new Poi();
+                    poi.setPoiName(poiName);
+                    poi.setLat(Double.parseDouble(plan.get("lat").toString()));
+                    poi.setLng(Double.parseDouble(plan.get("lng").toString()));
+                    poi.setPoiDesc((String) plan.get("description"));
+                    poiMapper.insertPOI(poi);
 
-            if (response != null && response.containsKey("choices")) {
-                String aiGeneratedText = ((List<Map<String, String>>) response.get("choices")).get(0).get("text");
+                    poi = poiMapper.findByName(poiName);
+                    if (poi == null) {
+                        throw new RuntimeException("Failed to insert new POI: " + poiName);
+                    }
+                }
 
-                // AI로부터 받은 텍스트를 바탕으로 일정 저장
-                saveGeneratedSchedule(aiGeneratedText, preferences);
+                Schedule schedule = new Schedule();
+                schedule.setUserId(userId);
+                schedule.setScheTitle(scheTitle);
+                schedule.setScheDesc(scheDesc);
+                schedule.setScheStDt(startDate);
+                schedule.setScheEdDt(endDate);
+                schedule.setScheStTm((String) plan.get("departTime"));
+                schedule.setScheEdTm((String) plan.get("arriveTime"));
+                schedule.setIsBusiness("N");
+                schedule.setIsImportance("N");
+                schedule.setPoiIdx(poi.getPoiIdx());
+                schedule.setScheNum(scheNum);
+
+                scheduleMapper.insertSchedule(schedule);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
+
+        temporaryItineraries.remove(userId);
     }
 
-    private String generatePrompt(Map<String, String> preferences) {
-        // OpenAI API에 보낼 프롬프트를 생성합니다.
-        return "Create a travel schedule based on these preferences: " + preferences.toString();
-    }
-
-    private void saveGeneratedSchedule(String aiGeneratedText, Map<String, String> preferences) {
-        // aiGeneratedText를 파싱하고, tb_schedule 테이블에 데이터를 저장하는 로직 구현
-        // 이 예제에서는 간단히 설명 문자열로 저장합니다.
-
-        // 예시: OpenAI가 생성한 텍스트를 스케줄로 저장
-        String scheTitle = "AI Generated Schedule";
-        String scheDesc = aiGeneratedText;
-        String scheStDt = preferences.get("trav_sche");
-        String scheEdDt = preferences.get("trav_sche_end");
-        String isBusiness = "N";
-        String isImportance = "N";
-
-        // 실제로는 JSON 파싱 등 로직을 통해 schedule을 구성해야 함.
-        Schedule schedule = new Schedule();
-        schedule.setUserId("user"); // 예시로 사용자 ID를 하드코딩
-        schedule.setScheTitle(scheTitle);
-        schedule.setScheDesc(scheDesc);
-        schedule.setScheStDt(scheStDt);
-        schedule.setScheEdDt(scheEdDt);
-        schedule.setIsBusiness(isBusiness);
-        schedule.setIsImportance(isImportance);
-
-        // scheduleMapper를 통해 DB에 저장
-        scheduleMapper.insertSchedule(schedule);
-    }
-
-    public List<Schedule> getAllSchedules(String userId) {
+    public List<Schedule> getUserSchedules(String userId) {
         return scheduleMapper.findAllSchedulesByUserId(userId);
     }
 
-    public List<Schedule> getSchedulesByBusinessFlag(String userId, String isBusiness) {
-        return scheduleMapper.findByBusinessFlag(userId, isBusiness);
+    @Transactional
+    public void updateSchedule(Schedule schedule) {
+        scheduleMapper.updateSchedule(schedule.getScheIdx(), schedule.getScheTitle(), schedule.getScheDesc());
     }
 
-    public List<Schedule> getImportantSchedules(String userId) {
-        return scheduleMapper.findImportantSchedules(userId);
+    @Transactional
+    public void deleteSchedule(int scheduleId) {
+        scheduleMapper.deleteByScheNum(scheduleId);
     }
 
-    public void toggleImportance(int scheNum) {
-        scheduleMapper.updateImportanceByScheNum(scheNum);
+    private String generatePrompt(int days, String ageGroup, String gender, String groupSize, String theme, String startDate, String endDate) {
+        return String.format(
+            "다음 조건을 고려하여 %d일 동안의 일정을 생성해주세요: " +
+            "연령대: %s, 성별: %s, 그룹 크기: %s, 테마: %s, 시작일: %s, 종료일: %s. " +
+            "일정은 매일 아침 9시부터 저녁 9시 사이에 구성되며, 각 일정은 관광지, 식당, 카페, " +
+            "숙박을 포함하여 다양하게 배치해 주세요. 숙박 장소는 가급적 동일하게 유지하되, " +
+            "일정이 너무 먼 곳에 있을 경우에는 변경해도 됩니다. " +
+            "응답을 반드시 완전한 JSON 형식으로 작성하고, JSON 외의 내용은 포함하지 말아주세요. " +
+            "응답을 다음과 같은 JSON 코드 블록으로 작성하세요:\n" +
+            "```json\n" +
+            "{\n" +
+            "  \"day1\": [\n" +
+            "    {\n" +
+            "      \"name\": \"장소명\",\n" +
+            "      \"lat\": 위도,\n" +
+            "      \"lng\": 경도,\n" +
+            "      \"address\": \"주소\",\n" +
+            "      \"description\": \"설명\",\n" +
+            "      \"departTime\": \"출발시간\",\n" +
+            "      \"arriveTime\": \"도착시간\",\n" +
+            "      \"type\": \"관광지/식당/카페/숙박\"\n" +
+            "    }\n" +
+            "  ],\n" +
+            "  \"day2\": [...],\n" +
+            "  ...\n" +
+            "  \"day%d\": [...]\n" +
+            "}\n" +
+            "```",
+            days, ageGroup, gender, groupSize, theme, startDate, endDate, days
+        );
     }
 
-    public void deleteSchedule(int scheNum) {
-        scheduleMapper.deleteByScheNum(scheNum);
-    }
+    private Map<String, List<Map<String, Object>>> parseAIResponse(String aiGeneratedText) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-    public void updateSchedule(int scheNum, String scheTitle, String scheDesc) {
-        scheduleMapper.updateSchedule(scheNum, scheTitle, scheDesc);
+            String jsonText = aiGeneratedText.trim();
+            // JSON 코드 블록 제거
+            if (jsonText.startsWith("```json")) {
+                jsonText = jsonText.substring(7);
+            }
+            if (jsonText.endsWith("```")) {
+                jsonText = jsonText.substring(0, jsonText.length() - 3);
+            }
+
+            jsonText = jsonText.trim();
+
+            // JSON 객체의 시작과 끝 확인
+            if (jsonText.startsWith("{") && jsonText.endsWith("}")) {
+                return objectMapper.readValue(jsonText, new TypeReference<Map<String, List<Map<String, Object>>>>() {});
+            } else {
+                log.error("Invalid JSON format: " + jsonText);
+                throw new JsonProcessingException("Invalid JSON format") {};
+            }
+        } catch (JsonProcessingException e) {
+            log.error("JSON 파싱 오류: " + e.getMessage(), e);
+            return null;
+        }
     }
 }
