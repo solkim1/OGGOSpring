@@ -12,7 +12,7 @@ public class User {
 	private String userPw;
 
 	private String userEmail;
-	
+
 	private char isGoogle;
 
 	public String getUserId() {
@@ -54,5 +54,5 @@ public class User {
 	public void setIsGoogle(char isGoogle) {
 		this.isGoogle = isGoogle;
 	}
-	
+
 }

@@ -79,6 +79,7 @@ public class UserController {
 	@Transactional
 	@PostMapping(value = "/editProfile")
 	public User editProfile(@RequestBody User user) {
+
 		System.out.println(user.toString());
 		
 		if(user.getUserPw().equals("")) {
@@ -91,6 +92,7 @@ public class UserController {
 	    	returnUser = mapper.getUserById(user);
 	    }
 	    System.out.println(returnUser.toString());
+
 	    return returnUser;
 	}
 }

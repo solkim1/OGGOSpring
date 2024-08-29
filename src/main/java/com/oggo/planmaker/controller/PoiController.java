@@ -65,4 +65,6 @@ public class PoiController {
             return ResponseEntity.status(500).body("그룹화된 POI 데이터 조회 중 오류가 발생했습니다: " + e.getMessage());
         }
     }
+
 }
+

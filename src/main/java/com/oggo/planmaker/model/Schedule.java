@@ -12,7 +12,8 @@ public class Schedule {
     private String isBusiness;
     private String isImportance;
     private int poiIdx;
-    private String scheNum;
+    private int scheNum;
+
     // Getters and Setters
 
     public int getPoiIdx() {
@@ -23,11 +24,13 @@ public class Schedule {
 		this.poiIdx = poiIdx;
 	}
 
-	public String getScheNum() {
+
+	public int getScheNum() {
 		return scheNum;
 	}
 
-	public void setScheNum(String scheNum) {
+	public void setScheNum(int scheNum) {
+
 		this.scheNum = scheNum;
 	}
 
