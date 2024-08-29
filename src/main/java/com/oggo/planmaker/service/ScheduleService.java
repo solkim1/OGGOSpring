@@ -74,7 +74,7 @@ public class ScheduleService {
          throw new RuntimeException("해당 사용자의 임시 일정이 존재하지 않습니다: " + userId);
       }
 
-      int scheNum = scheduleMapper.getLastScheNum() + 1;
+      String scheNum = scheduleMapper.getLastScheNum();
       String scheTitle = "서울 여행"; // 타이틀 생성 로직 필요 시 추가
       String scheDesc = String.format("%s부터 %s까지의 여행 일정", startDate, endDate);
 

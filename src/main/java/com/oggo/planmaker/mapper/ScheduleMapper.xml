@@ -87,7 +87,7 @@
         VALUES (#{userId}, #{scheTitle}, #{scheDesc}, #{scheStDt}, #{scheEdDt}, #{isBusiness}, #{isImportance})
     </insert>
 
-    <select id="getLastScheNum" resultType="int">
+    <select id="getLastScheNum" resultType="String">
         SELECT COALESCE(MAX(sche_num), 0) FROM tb_schedule
     </select>
 
