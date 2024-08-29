@@ -79,12 +79,18 @@ public class UserController {
 	@Transactional
 	@PostMapping(value = "/editProfile")
 	public User editProfile(@RequestBody User user) {
-	    System.out.println(user.toString());
+		System.out.println(user.toString());
+		
+		if(user.getUserPw().equals("")) {
+			user.setUserPw(mapper.getUserById(user).getUserPw());
+		}
+		
 	    User returnUser = null;
 	    int row = mapper.editProfile(user);
 	    if (row > 0) {
-	    	returnUser = mapper.getUserById(user.getUserId());
+	    	returnUser = mapper.getUserById(user);
 	    }
+	    System.out.println(returnUser.toString());
 	    return returnUser;
 	}
 }
