@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "file:///C:\Users\sr139\OneDrive\Desktop\OGGOSpring\planmakerSpring\src\main\resources\mybatis-3-mapper.dtd">
+
 <mapper namespace="com.oggo.planmaker.mapper.EventMapper">
     
     <!-- 이벤트와 관련된 POI 데이터를 함께 조회하는 SQL 쿼리 -->
