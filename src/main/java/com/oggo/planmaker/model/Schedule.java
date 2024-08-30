@@ -1,5 +1,7 @@
 package com.oggo.planmaker.model;
 
+
+
 public class Schedule {
     private int scheIdx;
     private String userId;
@@ -10,9 +12,11 @@ public class Schedule {
     private String scheEdDt;
     private String scheEdTm;
     private String isBusiness;
+
     private String isImportance;
     private int poiIdx;
     private String scheNum;
+
 
     // Getters and Setters
 
@@ -25,11 +29,13 @@ public class Schedule {
 	}
 
 
+
 	public String getScheNum() {
 		return scheNum;
 	}
 
 	public void setScheNum(String scheNum) { 
+
 
 		this.scheNum = scheNum;
 	}
@@ -106,7 +112,9 @@ public class Schedule {
         this.isBusiness = isBusiness;
     }
 
+
     public String getIsImportance() {
+
         return isImportance;
     }
 

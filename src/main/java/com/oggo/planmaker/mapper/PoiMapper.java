@@ -15,5 +15,7 @@ public interface PoiMapper {
 
     List<Poi> findByThemeAndDemographics(String theme, String gender, String ageGroup);
 
+
 }
+
 
