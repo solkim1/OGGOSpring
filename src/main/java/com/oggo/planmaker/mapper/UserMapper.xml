@@ -2,8 +2,8 @@
 <mapper namespace="com.oggo.planmaker.mapper.UserMapper">
 
 	<resultMap id="userResultMap" type="User">
-
 		<id property="userId" column="user_id" />
+
 		<result property="userPw" column="user_pw" />
 		<result property="userNick" column="user_Nick" />
 		<result property="userEmail" column="user_email" />
@@ -44,22 +44,24 @@
 
 	<insert id="googleJoin">
 		INSERT INTO tb_user
+
 		(user_id ,user_nick ,user_email,
 		is_google)
+
 		VALUES (#{userId} ,#{userNick} ,#{userEmail}, 'Y')
 	</insert>
 
 	<update id="editProfile" parameterType="User">
 		UPDATE tb_user
+
 		SET
 		user_nick = #{userNick} , user_pw = #{userPw}
 		WHERE user_id = #{userId}
-
 	</update>
 
 	<select id="getUserById" parameterType="User"
-
 		resultMap="userResultMap">
+
 		SELECT * FROM tb_user
 		WHERE user_id = #{userId}
 	</select>

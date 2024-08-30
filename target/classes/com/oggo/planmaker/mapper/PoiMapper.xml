@@ -26,6 +26,5 @@
         LIMIT 20
     </select>
 
-
 </mapper>
 

@@ -48,13 +48,17 @@ public class UserController {
 
 	@PostMapping(value = "/googleLogin")
 	public User googleLogin(@RequestBody User user) {
-		System.out.println(user.toString());
+
+//		System.out.println(user.toString());
+
 		User isUser = mapper.firstCheck(user);
 		if (isUser == null) {
 			mapper.googleJoin(user);
 		}
 		User checkuser = mapper.googleLogin(isUser);
-		System.out.println(checkuser.toString());
+
+//		System.out.println(checkuser.toString());
+
 		return checkuser;
 	}
 
@@ -80,6 +84,7 @@ public class UserController {
 	@PostMapping(value = "/editProfile")
 	public User editProfile(@RequestBody User user) {
 
+
 		System.out.println(user.toString());
 		
 		if(user.getUserPw().equals("")) {
@@ -92,6 +97,7 @@ public class UserController {
 	    	returnUser = mapper.getUserById(user);
 	    }
 	    System.out.println(returnUser.toString());
+
 
 	    return returnUser;
 	}

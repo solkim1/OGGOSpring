@@ -1,16 +1,20 @@
 package com.oggo.planmaker.controller;
 
 
+
 import java.sql.SQLException;
+
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,13 +22,16 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,11 +39,13 @@ import com.oggo.planmaker.mapper.ScheduleMapper;
 import com.oggo.planmaker.model.Schedule;
 import com.oggo.planmaker.model.ScheduleJson;
 
+
 import com.oggo.planmaker.service.ScheduleService;
 
 @RestController
 @RequestMapping("/api/schedules")
 public class ScheduleController {
+
 
 
     private static final Logger logger = LoggerFactory.getLogger(ScheduleController.class);
@@ -49,6 +58,7 @@ public class ScheduleController {
     
     @Autowired
     private ObjectMapper objectMapper;
+
 
 
     @GetMapping("/generate")
@@ -92,18 +102,23 @@ public class ScheduleController {
     }
 
     @PutMapping("/toggleImportance/{scheNum}")
+
     public ResponseEntity<Void> toggleImportance(@PathVariable String scheNum) {
+
         scheduleService.toggleImportance(scheNum);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/delete/{scheNum}")
+
     public ResponseEntity<Void> deleteSchedule(@PathVariable String scheNum) {
+
         scheduleService.deleteSchedule(scheNum);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/update")
+
     public ResponseEntity<Void> updateSchedule(@RequestParam String scheNum, @RequestParam String scheTitle, @RequestParam String scheDesc) {
         scheduleService.updateSchedule(scheNum, scheTitle, scheDesc);
         return ResponseEntity.ok().build();
@@ -140,5 +155,6 @@ public class ScheduleController {
             return ResponseEntity.status(HttpStatus.SC_INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
 
 }
