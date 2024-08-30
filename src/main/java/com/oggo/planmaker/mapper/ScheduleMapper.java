@@ -17,11 +17,11 @@ public interface ScheduleMapper {
 
 	List<Schedule> findImportantSchedules(@Param("userId") String userId);
 
-	void updateImportanceByScheNum(@Param("scheNum") int scheNum);
+	void updateImportanceByScheNum(@Param("scheNum") String scheNum);
 
-	void deleteByScheNum(@Param("scheNum") int scheNum);
+	void deleteByScheNum(@Param("scheNum") String scheNum);
 
-	void updateSchedule(@Param("scheNum") int scheNum, @Param("scheTitle") String scheTitle,
+	void updateSchedule(@Param("scheNum") String scheNum, @Param("scheTitle") String scheTitle,
 			@Param("scheDesc") String scheDesc);
 
 	void insertSchedule(Schedule schedule);

@@ -15,7 +15,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import com.oggo.planmaker.mapper.PoiMapper;
 import com.oggo.planmaker.mapper.ScheduleMapper;
 import com.oggo.planmaker.model.Poi;
@@ -75,7 +74,7 @@ public class ScheduleService {
 			throw new RuntimeException("해당 사용자의 임시 일정이 존재하지 않습니다: " + userId);
 		}
 
-		int scheNum = scheduleMapper.getLastScheNum() + 1;
+		String scheNum = String.valueOf(scheduleMapper.getLastScheNum() + 1);
 		String scheTitle = "서울 여행"; // 타이틀 생성 로직 필요 시 추가
 		String scheDesc = String.format("%s부터 %s까지의 여행 일정", startDate, endDate);
 
@@ -125,11 +124,11 @@ public class ScheduleService {
 
 	@Transactional
 	public void updateSchedule(Schedule schedule) {
-		scheduleMapper.updateSchedule(schedule.getScheIdx(), schedule.getScheTitle(), schedule.getScheDesc());
+		scheduleMapper.updateSchedule(String.valueOf(schedule.getScheIdx()), schedule.getScheTitle(), schedule.getScheDesc());
 	}
 
 	@Transactional
-	public void deleteSchedule(int scheduleId) {
+	public void deleteSchedule(String scheduleId) {
 		scheduleMapper.deleteByScheNum(scheduleId);
 	}
 
@@ -207,11 +206,11 @@ public class ScheduleService {
 		return scheduleMapper.findImportantSchedules(userId);
 	}
 
-	public void toggleImportance(int scheNum) {
+	public void toggleImportance(String scheNum) {
 		scheduleMapper.updateImportanceByScheNum(scheNum);
 	}
 
-	public void updateSchedule(int scheNum, String scheTitle, String scheDesc) {
+	public void updateSchedule(String scheNum, String scheTitle, String scheDesc) {
 		scheduleMapper.updateSchedule(scheNum, scheTitle, scheDesc);
 	}
 }

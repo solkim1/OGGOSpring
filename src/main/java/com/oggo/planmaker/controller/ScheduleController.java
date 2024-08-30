@@ -92,19 +92,19 @@ public class ScheduleController {
     }
 
     @PutMapping("/toggleImportance/{scheNum}")
-    public ResponseEntity<Void> toggleImportance(@PathVariable int scheNum) {
+    public ResponseEntity<Void> toggleImportance(@PathVariable String scheNum) {
         scheduleService.toggleImportance(scheNum);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/delete/{scheNum}")
-    public ResponseEntity<Void> deleteSchedule(@PathVariable int scheNum) {
+    public ResponseEntity<Void> deleteSchedule(@PathVariable String scheNum) {
         scheduleService.deleteSchedule(scheNum);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/update")
-    public ResponseEntity<Void> updateSchedule(@RequestParam int scheNum, @RequestParam String scheTitle, @RequestParam String scheDesc) {
+    public ResponseEntity<Void> updateSchedule(@RequestParam String scheNum, @RequestParam String scheTitle, @RequestParam String scheDesc) {
         scheduleService.updateSchedule(scheNum, scheTitle, scheDesc);
         return ResponseEntity.ok().build();
     }
