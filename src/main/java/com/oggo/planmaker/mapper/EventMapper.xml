@@ -2,34 +2,24 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "file:///C:\Users\sr139\OneDrive\Desktop\OGGOSpring\planmakerSpring\src\main\resources\mybatis-3-mapper.dtd">
 
 <mapper namespace="com.oggo.planmaker.mapper.EventMapper">
-    
-    <!-- 이벤트와 관련된 POI 데이터를 함께 조회하는 SQL 쿼리 -->
-    <!-- <select id="getAllEvents" resultType="com.oggo.planmaker.model.CustomEvent">
-        SELECT 
-            s.sche_st_dt AS scheStDt, 
-            s.sche_st_tm AS scheStTm, 
-            s.sche_ed_dt AS scheEdDt, 
-            s.sche_ed_tm AS scheEdTm, 
-            p.poi_idx AS poiidx, 
-            p.poi_name AS poiName, 
-            s.sche_desc AS scheDesc, 
-            s.sche_num AS schenum
-        FROM tb_schedule s
-        JOIN tb_poi p ON s.poi_idx = p.poi_idx
-    </select>
 
-    <delete id="deleteEvent">
-        DELETE FROM tb_schedule 
-        WHERE poi_idx = #{poiidx} 
-        AND sche_num = #{schenum}
-    </delete>
+	<insert id="insertEvents" parameterType="java.util.List">
+		INSERT INTO events (id, summary, start_time, end_time, description,
+		location)
+		VALUES
+		<foreach collection="list" item="event" separator=",">
+			(#{event.id}, #{event.summary}, #{event.startTime}, #{event.endTime},
+			#{event.description}, #{event.location})
+		</foreach>
+	</insert>
 
-    <insert id="insertEvents" parameterType="java.util.List">
-        INSERT INTO tb_schedule (sche_st_dt, sche_st_tm, sche_ed_dt, sche_ed_tm, poi_idx, sche_num)
-        VALUES 
-        <foreach collection="list" item="event" separator=",">
-            (#{event.scheStDt}, #{event.scheStTm}, #{event.scheEdDt}, #{event.scheEdTm}, #{event.poiidx}, #{event.schenum})
-        </foreach>
-    </insert> -->
+
+	<select id="selectAllEvents" resultType="Event">
+
+		SELECT id, summary, start_time as startTime, end_time as endTime,
+		description, location FROM events
+	</select>
+
+
 </mapper>
 

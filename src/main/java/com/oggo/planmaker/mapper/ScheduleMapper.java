@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Param;
 
 import com.oggo.planmaker.model.Schedule;
 
+
 import com.oggo.planmaker.model.ScheduleJson;
 
 @Mapper
@@ -29,5 +30,6 @@ public interface ScheduleMapper {
 	int getLastScheNum();
 
 	Integer callInsertTravelCourse(@Param("jsonData") String scheduleJson);
+
 
 }
