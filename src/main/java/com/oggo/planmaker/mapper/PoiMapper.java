@@ -1,21 +1,21 @@
 package com.oggo.planmaker.mapper;
 
-import com.oggo.planmaker.model.Poi;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Options;
-
 import java.util.List;
+import java.util.Map;
+
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import com.oggo.planmaker.model.Poi;
 
 @Mapper
 public interface PoiMapper {
-    Poi findByName(String poiName);
     
-    @Options(useGeneratedKeys = true, keyProperty = "poiIdx")
+    Poi findByName(@Param("poiName") String poiName);
+    
     void insertPOI(Poi poi);
-
-    List<Poi> findByThemeAndDemographics(String theme, String gender, String ageGroup);
-
-
+    
+    List<Poi> findByTheme(@Param("theme") String theme);
+    
+    
 }
-
-

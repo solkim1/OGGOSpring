@@ -1,30 +1,25 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "file:///C:\Users\sr139\OneDrive\Desktop\OGGOSpring\planmakerSpring\src\main\resources\mybatis-3-mapper.dtd">
 <mapper namespace="com.oggo.planmaker.mapper.PoiMapper">
 
-   <select id="findByName" resultType="com.oggo.planmaker.model.Poi">
+    <select id="findByName" resultType="com.oggo.planmaker.model.Poi">
         SELECT *
         FROM fake_poi
         WHERE poi_name = #{poiName}
     </select>
 
     <insert id="insertPOI" useGeneratedKeys="true" keyProperty="poiIdx">
-        INSERT INTO fake_poi (poi_name, poi_type, lat, lng, poi_desc, closed_day, hours_of_use, opening_period, sale_item)
-        VALUES (#{poiName}, #{poiType}, #{lat}, #{lng}, #{poiDesc}, #{closedDay}, #{hoursOfUse}, #{openingPeriod}, #{saleItem})
-    </insert>
+    INSERT INTO fake_poi (poi_name, poi_type, lat, lng, poi_desc)
+    VALUES (#{poiName}, #{poiType}, #{lat}, #{lng}, #{poiDesc})
+</insert>
 
-    <select id="findByThemeAndDemographics" resultType="com.oggo.planmaker.model.Poi">
+    <select id="findByTheme" resultType="com.oggo.planmaker.model.Poi">
         SELECT *
         FROM fake_poi
         WHERE poi_type = #{theme}
-        <if test="gender != null and gender != ''">
-            AND gender = #{gender}
-        </if>
-        <if test="ageGroup != null and ageGroup != ''">
-            AND age_group = #{ageGroup}
-        </if>
         ORDER BY RAND()
         LIMIT 20
     </select>
+    
+   
 
 </mapper>
-
