@@ -3,11 +3,7 @@ package com.oggo.planmaker.controller;
 
 
 import java.sql.SQLException;
-
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 
@@ -35,6 +31,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.oggo.planmaker.mapper.ScheduleMapper;
 import com.oggo.planmaker.model.Schedule;
 import com.oggo.planmaker.model.ScheduleJson;
@@ -80,26 +78,78 @@ public class ScheduleController {
                     return ResponseEntity.status(500).body(errorResponse);
                 });
     }
+    @GetMapping("/patchschedule")
+    public String patchschedule(@RequestParam("scheNum") String scheNum) {
+        System.out.println(scheNum);
+
+        List<ScheduleJson> schedule = scheduleMapper.patchschedule(scheNum);
+        
+        for (ScheduleJson sche : schedule) {
+            System.out.println(sche.toString());
+        }
+
+        // Create an ObjectMapper instance
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode rootNode = mapper.createObjectNode();
+
+        Map<String, List<ScheduleJson>> groupedByDate = new TreeMap<>();
+        for (ScheduleJson sche : schedule) {
+            String date = sche.getStartDate();
+            groupedByDate.putIfAbsent(date, new ArrayList<>());
+            groupedByDate.get(date).add(sche);
+        }
+
+        // 같은날짜 day ~ 로 그룹화
+        int dayCounter = 1;
+        for (Map.Entry<String, List<ScheduleJson>> entry : groupedByDate.entrySet()) {
+            ArrayNode dayArray = mapper.createArrayNode();
+
+            for (ScheduleJson sche : entry.getValue()) {
+                ObjectNode scheduleNode = mapper.createObjectNode();
+                scheduleNode.put("name", sche.getTitle());
+                scheduleNode.put("lat", sche.getLat());
+                scheduleNode.put("lng", sche.getLng());
+                scheduleNode.put("description", sche.getDescription());
+                scheduleNode.put("departTime", sche.getDepartTime().substring(0, 5)); // DB에 초까지 저장되어있으므로 잘라내기
+                scheduleNode.put("arriveTime", sche.getArriveTime().substring(0, 5)); // DB에 초까지 저장되어있으므로 잘라내기
+                scheduleNode.put("type", sche.getType());
+
+                dayArray.add(scheduleNode);
+            }
+
+            // 같은날짜 day ~ 로 그룹화
+            rootNode.set("day" + dayCounter, dayArray);
+            dayCounter++;
+        }
+
+        // JSON 데이터 String 으로 리턴
+        try {
+            return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(rootNode);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
     @GetMapping("/all")
     public ResponseEntity<List<Schedule>> getAllSchedules(@RequestParam("userId") String userId) {
         return ResponseEntity.ok(scheduleService.getAllSchedules(userId));
     }
 
-    @GetMapping("/travel")
-    public ResponseEntity<List<Schedule>> getTravelSchedules(@RequestParam("userId") String userId) {
-        return ResponseEntity.ok(scheduleService.getSchedulesByBusinessFlag(userId, "N"));
-    }
-
-    @GetMapping("/business")
-    public ResponseEntity<List<Schedule>> getBusinessSchedules(@RequestParam("userId") String userId) {
-        return ResponseEntity.ok(scheduleService.getSchedulesByBusinessFlag(userId, "Y"));
-    }
-
-    @GetMapping("/important")
-    public ResponseEntity<List<Schedule>> getImportantSchedules(@RequestParam("userId") String userId) {
-        return ResponseEntity.ok(scheduleService.getImportantSchedules(userId));
-    }
+//    @GetMapping("/travel")
+//    public ResponseEntity<List<Schedule>> getTravelSchedules(@RequestParam("userId") String userId) {
+//        return ResponseEntity.ok(scheduleService.getSchedulesByBusinessFlag(userId, "N"));
+//    }
+//
+//    @GetMapping("/business")
+//    public ResponseEntity<List<Schedule>> getBusinessSchedules(@RequestParam("userId") String userId) {
+//        return ResponseEntity.ok(scheduleService.getSchedulesByBusinessFlag(userId, "Y"));
+//    }
+//
+//    @GetMapping("/important")
+//    public ResponseEntity<List<Schedule>> getImportantSchedules(@RequestParam("userId") String userId) {
+//        return ResponseEntity.ok(scheduleService.getImportantSchedules(userId));
+//    }
 
     @PutMapping("/toggleImportance/{scheNum}")
 
@@ -127,6 +177,7 @@ public class ScheduleController {
     
     @PostMapping("/save")
     public ResponseEntity<Map<String, Object>> insertTravelCourses(@RequestBody List<ScheduleJson> scheduleJsonList) throws SQLException {
+    	System.out.println(scheduleJsonList);
         logger.info("Received request to save schedules: {}", scheduleJsonList);
         Map<String, Object> response = new HashMap<>();
 

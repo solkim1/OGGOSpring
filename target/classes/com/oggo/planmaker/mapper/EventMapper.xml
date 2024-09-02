@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "file:///C:\Users\sr139\OneDrive\Desktop\OGGOSpring\planmakerSpring\src\main\resources\mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"file:///C:\Users\SMHRD\Desktop\eclipse-workspace\planmakerSpring\src\main\resources\mybatis-3-mapper.dtd">
 
 <mapper namespace="com.oggo.planmaker.mapper.EventMapper">
 
@@ -14,7 +15,7 @@
 	</insert>
 
 
-	<select id="selectAllEvents" resultType="Event">
+	<select id="selectAllEvents" resultType="com.oggo.planmaker.model.Event">
 
 		SELECT id, summary, start_time as startTime, end_time as endTime,
 		description, location FROM events

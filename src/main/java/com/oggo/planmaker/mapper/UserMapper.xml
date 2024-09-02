@@ -1,9 +1,9 @@
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "file:///C:\Users\sr139\OneDrive\Desktop\OGGOSpring\planmakerSpring\src\main\resources\mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"file:///C:\Users\SMHRD\Desktop\eclipse-workspace\planmakerSpring\src\main\resources\mybatis-3-mapper.dtd">
 <mapper namespace="com.oggo.planmaker.mapper.UserMapper">
 
-	<resultMap id="userResultMap" type="User">
+	<resultMap id="userResultMap" type="com.oggo.planmaker.model.User">
 		<id property="userId" column="user_id" />
-
 		<result property="userPw" column="user_pw" />
 		<result property="userNick" column="user_Nick" />
 		<result property="userEmail" column="user_email" />
@@ -11,7 +11,7 @@
 
 	</resultMap>
 
-	<insert id="join" parameterType="User">
+	<insert id="join" parameterType="com.oggo.planmaker.model.User">
 		INSERT INTO tb_user
 		(user_id,
 		user_nick, user_pw, user_email) VALUES
@@ -19,7 +19,7 @@
 		,#{userPw} ,#{userEmail})
 	</insert>
 
-	<select id="login" parameterType="User"
+	<select id="login" parameterType="com.oggo.planmaker.model.User"
 		resultMap="userResultMap">
 		SELECT *
 		FROM tb_user
@@ -27,14 +27,14 @@
 		#{userPw}
 	</select>
 
-	<select id="googleLogin" parameterType="User"
+	<select id="googleLogin" parameterType="com.oggo.planmaker.model.User"
 		resultMap="userResultMap">
 		SELECT *
 		FROM tb_user
 		WHERE user_id = #{userId}
 	</select>
 
-	<select id="firstCheck" parameterType="User"
+	<select id="firstCheck" parameterType="com.oggo.planmaker.model.User"
 		resultMap="userResultMap">
 		SELECT *
 		FROM tb_user
@@ -51,7 +51,7 @@
 		VALUES (#{userId} ,#{userNick} ,#{userEmail}, 'Y')
 	</insert>
 
-	<update id="editProfile" parameterType="User">
+	<update id="editProfile" parameterType="com.oggo.planmaker.model.User">
 		UPDATE tb_user
 
 		SET
@@ -59,7 +59,7 @@
 		WHERE user_id = #{userId}
 	</update>
 
-	<select id="getUserById" parameterType="User"
+	<select id="getUserById" parameterType="com.oggo.planmaker.model.User"
 		resultMap="userResultMap">
 
 		SELECT * FROM tb_user

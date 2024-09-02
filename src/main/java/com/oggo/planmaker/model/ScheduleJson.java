@@ -13,8 +13,8 @@ public class ScheduleJson {
     private String arriveTime; // 도착 시간
     private Double lat; // 위도
     private Double lng; // 경도
-   private String type; // 장소 유형 (예: 관광지, 식당 등)
-   private String scheduleDesc;
+    private String type; // 장소 유형 (예: 관광지, 식당 등)
+    private String scheduleDesc;
 
 
    @Override

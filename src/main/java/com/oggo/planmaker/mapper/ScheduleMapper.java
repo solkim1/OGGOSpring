@@ -30,6 +30,7 @@ public interface ScheduleMapper {
 	int getLastScheNum();
 
 	Integer callInsertTravelCourse(@Param("jsonData") String scheduleJson);
-
+	
+	List<ScheduleJson> patchschedule(@Param("sche_num")String scheNum);
 
 }
