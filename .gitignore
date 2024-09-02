@@ -1,0 +1,41 @@
+# Eclipse 관련 파일들
+.metadata/
+.classpath
+.project
+.settings/
+bin/
+tmp/
+
+# STS(Spring Tool Suite) 관련 파일들
+.springBeans
+.sts4-cache/
+
+# IntelliJ IDEA 관련 파일들 (사용하지 않는 경우라도 무시 설정)
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Maven 관련 파일들
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# OS 및 IDE에서 생성되는 파일들
+.DS_Store
+Thumbs.db
+*.swp
+
+# Node.js 관련 파일들 (React나 다른 Node.js 도구를 사용하는 경우)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 환경 설정 파일
+.env
+
+# 민감한 정보가 포함된 파일
+application.properties
+application.yml
+
+# 기타 무시하고 싶은 파일들
