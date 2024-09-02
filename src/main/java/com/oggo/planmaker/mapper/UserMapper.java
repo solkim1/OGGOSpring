@@ -28,5 +28,7 @@ public interface UserMapper {
 
 	int editProfile(User user);
 	
-	User getUserById(String userId);
+
+	User getUserById(User user);
+
 }

@@ -1,6 +1,7 @@
 package com.oggo.planmaker.controller;
 
 
+
 import java.util.Collections;
 import java.util.List;
 
@@ -15,10 +16,12 @@ import com.oggo.planmaker.model.Event;
 import com.oggo.planmaker.service.EventService;
 
 @RestController
+
 @RequestMapping("/api/events")
 public class EventController {
 
     @Autowired
+
     private EventService eventService;
 
     @GetMapping
@@ -44,6 +47,7 @@ public class EventController {
             // 적절한 예외 처리
         }
     }
+
 
 }
 

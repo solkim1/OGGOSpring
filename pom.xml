@@ -6,6 +6,7 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.3.3</version>
+
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.oggo</groupId>
@@ -106,12 +107,14 @@
 			<version>v3-rev20240705-2.0.0</version>
 		</dependency>
 
+
 		<!-- JSON 처리 라이브러리 추가 -->
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
 			<version>20211205</version>
 		</dependency>
+
 
 	</dependencies>
 

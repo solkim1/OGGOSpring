@@ -1,11 +1,14 @@
 package com.oggo.planmaker.mapper;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import com.oggo.planmaker.model.Schedule;
+
+
 import com.oggo.planmaker.model.ScheduleJson;
 
 @Mapper
@@ -16,11 +19,11 @@ public interface ScheduleMapper {
 
 	List<Schedule> findImportantSchedules(@Param("userId") String userId);
 
-	void updateImportanceByScheNum(@Param("scheNum") int scheNum);
+	void updateImportanceByScheNum(@Param("scheNum") String scheNum);
 
-	void deleteByScheNum(@Param("scheNum") int scheNum);
+	void deleteByScheNum(@Param("scheNum") String scheNum);
 
-	void updateSchedule(@Param("scheNum") int scheNum, @Param("scheTitle") String scheTitle,
+	void updateSchedule(@Param("scheNum") String scheNum, @Param("scheTitle") String scheTitle,
 			@Param("scheDesc") String scheDesc);
 
 	void insertSchedule(Schedule schedule);
@@ -28,4 +31,10 @@ public interface ScheduleMapper {
 	int getLastScheNum();
 
 	Integer callInsertTravelCourse(@Param("jsonData") String scheduleJson);
+	
+	void callSaveScheduleWithPOI(Map<String, Object> params);
+
+
+
 }
+

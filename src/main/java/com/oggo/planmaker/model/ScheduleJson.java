@@ -13,16 +13,18 @@ public class ScheduleJson {
     private String arriveTime; // 도착 시간
     private Double lat; // 위도
     private Double lng; // 경도
-	private String type; // 장소 유형 (예: 관광지, 식당 등)
+   private String type; // 장소 유형 (예: 관광지, 식당 등)
+   private String scheduleDesc;
 
-	@Override
-	public String toString() {
-		return "ScheduleJson [userId=" + userId + ", title=" + title + ", scheNum=" + scheNum + ", startDate="
-				+ startDate + ", endDate=" + endDate + ", isBusiness=" + isBusiness + ", name=" + name
-				+ ", description=" + description + ", departTime=" + departTime + ", arriveTime=" + arriveTime
-				+ ", lat=" + lat + ", lng=" + lng + ", type=" + type + "]";
-	}
-	
+
+   @Override
+   public String toString() {
+      return "ScheduleJson [userId=" + userId + ", title=" + title + ", scheNum=" + scheNum + ", startDate="
+            + startDate + ", endDate=" + endDate + ", isBusiness=" + isBusiness + ", name=" + name
+            + ", description=" + description + ", departTime=" + departTime + ", arriveTime=" + arriveTime
+            + ", lat=" + lat + ", lng=" + lng + ", type=" + type + ", scheduleDesc=" + scheduleDesc + "]";
+   }
+   
     // Getters and Setters
 
     public String getUserId() {
@@ -129,5 +131,13 @@ public class ScheduleJson {
         this.type = type;
     }
     
+
+   public String getScheduleDesc() {
+      return scheduleDesc;
+   }
+
+   public void setScheduleDesc(String scheduleDesc) {
+      this.scheduleDesc = scheduleDesc;
+   }
     
 }
