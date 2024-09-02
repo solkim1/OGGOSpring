@@ -1,7 +1,11 @@
 package com.oggo.planmaker.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,6 +14,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+
+
 import com.oggo.planmaker.model.Poi;
 import com.oggo.planmaker.service.PoiService;
 
@@ -17,52 +24,65 @@ import com.oggo.planmaker.service.PoiService;
 @RequestMapping("/api/poi")
 public class PoiController {
     
-    private static final Logger logger = LoggerFactory.getLogger(PoiController.class);
-    
+
+
     @Autowired
     private PoiService poiService;
 
     @GetMapping("/search")
     public ResponseEntity<?> searchPoi(@RequestParam String name) {
-        logger.info("Searching for POI with name: {}", name);
+
         try {
-            Poi poi = poiService.findPoiByName(name);
-            if (poi != null) {
-                logger.info("POI found: {}", poi);
-                return ResponseEntity.ok(poi);
-            } else {
-                logger.info("POI not found: {}", name);
-                return ResponseEntity.notFound().build();
-            }
+            Optional<Poi> poiOpt = poiService.findPoiByName(name);
+            return poiOpt
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {
-            logger.error("Error occurred while searching POI: {}", name, e);
-            return ResponseEntity.internalServerError().body("POI 검색 중 오류가 발생했습니다: " + e.getMessage());
+            return ResponseEntity.status(500).body("POI 검색 중 오류가 발생했습니다: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/theme")
+    public ResponseEntity<?> getPoiByTheme(
+            @RequestParam String theme,
+            @RequestParam(required = false) String gender,
+            @RequestParam(required = false) String ageGroup) {
+        try {
+            List<Poi> pois = poiService.findPoiByThemeAndDemographics(theme, gender, ageGroup);
+            return ResponseEntity.ok(pois);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("테마별 POI 검색 중 오류가 발생했습니다: " + e.getMessage());
+
         }
     }
 
     @PostMapping
     public ResponseEntity<?> addPoi(@RequestBody Poi poi) {
-        logger.info("Attempting to add new POI: {}", poi);
+
         try {
             poiService.insertPoi(poi);
-            logger.info("POI successfully added: {}", poi);
             return ResponseEntity.ok("POI가 성공적으로 추가되었습니다.");
         } catch (Exception e) {
-            logger.error("Error occurred while adding POI: {}", poi, e);
-            return ResponseEntity.internalServerError().body("POI 추가 중 오류가 발생했습니다: " + e.getMessage());
+            return ResponseEntity.status(500).body("POI 추가 중 오류가 발생했습니다: " + e.getMessage());
         }
     }
 
-    @PostMapping("/find-or-create")
-    public ResponseEntity<?> findOrCreatePoi(@RequestBody Poi poi) {
-        logger.info("Attempting to find or create POI: {}", poi);
+    @GetMapping("/grouped")
+    public ResponseEntity<?> getGroupedPoiData(
+        @RequestParam String theme,
+        @RequestParam String gender,
+        @RequestParam String ageGroup,
+        @RequestParam int days) {
         try {
-            Poi result = poiService.findOrCreatePoi(poi.getPoiName(), poi.getLat(), poi.getLng(), poi.getPoiDesc(), poi.getPoiType());
-            logger.info("POI found or created: {}", result);
-            return ResponseEntity.ok(result);
+            Map<String, List<Map<String, Object>>> groupedData = poiService.getGroupedPoiData(theme, gender, ageGroup, days);
+            return ResponseEntity.ok(groupedData);
         } catch (Exception e) {
-            logger.error("Error occurred while finding or creating POI: {}", poi, e);
-            return ResponseEntity.internalServerError().body("POI 조회 또는 생성 중 오류가 발생했습니다: " + e.getMessage());
+            return ResponseEntity.status(500).body("그룹화된 POI 데이터 조회 중 오류가 발생했습니다: " + e.getMessage());
         }
     }
+
+
 }
+
+
+

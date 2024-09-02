@@ -112,5 +112,6 @@
 	 <select id="callSaveScheduleWithPOI" statementType="CALLABLE">
         {call SaveScheduleWithPOI(#{p_schedules,jdbcType=VARCHAR,mode=IN})}
     </select>
+
 </mapper>
 
