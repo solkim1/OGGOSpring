@@ -1,8 +1,10 @@
 package com.oggo.planmaker.controller;
 
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+
+
 import com.oggo.planmaker.model.Poi;
 import com.oggo.planmaker.service.PoiService;
 
@@ -20,11 +24,14 @@ import com.oggo.planmaker.service.PoiService;
 @RequestMapping("/api/poi")
 public class PoiController {
     
+
+
     @Autowired
     private PoiService poiService;
 
     @GetMapping("/search")
     public ResponseEntity<?> searchPoi(@RequestParam String name) {
+
         try {
             Optional<Poi> poiOpt = poiService.findPoiByName(name);
             return poiOpt
@@ -45,11 +52,13 @@ public class PoiController {
             return ResponseEntity.ok(pois);
         } catch (Exception e) {
             return ResponseEntity.status(500).body("테마별 POI 검색 중 오류가 발생했습니다: " + e.getMessage());
+
         }
     }
 
     @PostMapping
     public ResponseEntity<?> addPoi(@RequestBody Poi poi) {
+
         try {
             poiService.insertPoi(poi);
             return ResponseEntity.ok("POI가 성공적으로 추가되었습니다.");
@@ -74,5 +83,6 @@ public class PoiController {
 
 
 }
+
 
 

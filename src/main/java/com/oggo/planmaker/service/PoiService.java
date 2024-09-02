@@ -1,26 +1,33 @@
 package com.oggo.planmaker.service;
 
 
+
 import com.oggo.planmaker.mapper.PoiMapper;
 import com.oggo.planmaker.model.Poi;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+
 import java.util.*;
+
 
 
 @Service
 public class PoiService {
 
 
+
     private static final Logger logger = LoggerFactory.getLogger(PoiService.class);
+
 
 
 
     @Autowired
     private PoiMapper poiMapper;
+
 
     public Optional<Poi> findPoiByName(String name) {
 
@@ -94,4 +101,3 @@ public class PoiService {
         return groupedData;
     }
 }
-

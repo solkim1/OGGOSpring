@@ -1,6 +1,7 @@
 package com.oggo.planmaker.mapper;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -31,6 +32,11 @@ public interface ScheduleMapper {
 
 	Integer callInsertTravelCourse(@Param("jsonData") String scheduleJson);
 	
+
 	List<ScheduleJson> patchschedule(@Param("sche_num")String scheNum);
 
+	void callSaveScheduleWithPOI(Map<String, Object> params);
+
+
 }
+

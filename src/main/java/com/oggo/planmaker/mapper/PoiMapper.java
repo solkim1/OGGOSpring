@@ -1,5 +1,6 @@
 package com.oggo.planmaker.mapper;
 
+
 import com.oggo.planmaker.model.Poi;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
@@ -17,5 +18,6 @@ public interface PoiMapper {
 
 
 }
+
 
 

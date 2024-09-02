@@ -2,13 +2,16 @@
 "file:///C:\Users\sr139\OneDrive\Desktop\OGGOSpring\planmakerSpring\src\main\resources\mybatis-3-mapper.dtd">
 <mapper namespace="com.oggo.planmaker.mapper.PoiMapper">
 
+
    <select id="findByName" resultType="com.oggo.planmaker.model.Poi">
+
         SELECT *
         FROM fake_poi
         WHERE poi_name = #{poiName}
     </select>
 
     <insert id="insertPOI" useGeneratedKeys="true" keyProperty="poiIdx">
+
         INSERT INTO fake_poi (poi_name, poi_type, lat, lng, poi_desc, closed_day, hours_of_use, opening_period, sale_item)
         VALUES (#{poiName}, #{poiType}, #{lat}, #{lng}, #{poiDesc}, #{closedDay}, #{hoursOfUse}, #{openingPeriod}, #{saleItem})
     </insert>
@@ -28,4 +31,5 @@
     </select>
 
 </mapper>
+
 
