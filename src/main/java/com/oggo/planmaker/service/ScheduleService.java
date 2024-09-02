@@ -1,5 +1,9 @@
 package com.oggo.planmaker.service;
 
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +20,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.oggo.planmaker.mapper.PoiMapper;
 import com.oggo.planmaker.mapper.ScheduleMapper;
 import com.oggo.planmaker.model.Schedule;
 import com.oggo.planmaker.model.ScheduleJson;
@@ -25,30 +28,30 @@ import com.oggo.planmaker.model.ScheduleJson;
 public class ScheduleService {
 
     private static final Logger log = LoggerFactory.getLogger(ScheduleService.class);
+    private static final String DATA_DIR = "src/main/resources/data/";
+    private static final String EXHIBITIONS_DIR = DATA_DIR;
 
     @Autowired
     private ScheduleMapper scheduleMapper;
 
     @Autowired
-    private PoiMapper poiMapper;
-
-    @Autowired
     private OpenAIService openAIService;
-
-    @Autowired
-    private PoiService poiService;
 
     private final Map<String, Map<String, List<Map<String, Object>>>> temporaryItineraries = new ConcurrentHashMap<>();
 
-    public CompletableFuture<Map<String, List<Map<String, Object>>>> generateItinerary(String userId, int days,
-            String ageGroup, String gender, String groupSize, String theme, String startDate, String endDate) {
-        String prompt = generatePrompt(days, ageGroup, gender, groupSize, theme, startDate, endDate);
+    public CompletableFuture<Map<String, List<Map<String, Object>>>> generateTravelItinerary(String userId, int days, String ageGroup, String gender, String groupSize, String theme, String startDate, String endDate) {
+        String prompt = generateTravelPrompt(days, ageGroup, gender, groupSize, theme, startDate, endDate);
         int maxRetries = 1;
         return generateItineraryWithRetry(prompt, userId, maxRetries);
     }
 
-    private CompletableFuture<Map<String, List<Map<String, Object>>>> generateItineraryWithRetry(String prompt,
-            String userId, int retries) {
+    public CompletableFuture<Map<String, List<Map<String, Object>>>> generateBusinessItinerary(String userId, int days, String region, String includeOptions, String startTime, String endTime, String startDate, String endDate) {
+        String prompt = generateBusinessPrompt(days, region, includeOptions, startTime, endTime, startDate, endDate);
+        int maxRetries = 1;
+        return generateItineraryWithRetry(prompt, userId, maxRetries);
+    }
+
+    private CompletableFuture<Map<String, List<Map<String, Object>>>> generateItineraryWithRetry(String prompt, String userId, int retries) {
         return openAIService.generateItinerary(prompt).thenApply(aiGeneratedText -> {
             log.info("AI 생성된 텍스트: " + aiGeneratedText);
             Map<String, List<Map<String, Object>>> itinerary = parseAIResponse(aiGeneratedText);
@@ -70,6 +73,7 @@ public class ScheduleService {
             }
         });
     }
+
     @Transactional
     public void saveSchedules(List<ScheduleJson> scheduleJsonList) {
         try {
@@ -112,19 +116,32 @@ public class ScheduleService {
         scheduleMapper.updateSchedule(scheNum, scheTitle, scheDesc);
     }
 
-    private String generatePrompt(int days, String ageGroup, String gender, String groupSize, String theme,
-            String startDate, String endDate) {
+    private String generateTravelPrompt(int days, String ageGroup, String gender, String groupSize, String theme, String startDate, String endDate) {
         return String.format("다음 조건에 따라 %d일간의 여행 일정을 JSON 형식으로 작성해 주세요: "
                 + "연령대: %s, 성별: %s, 그룹 크기: %s, 테마: %s, 시작일: %s, 종료일: %s. "
                 + "일정은 매일 아침 9시부터 저녁 9시까지로 구성하고, 관광지, 식당, 카페, 숙박을 포함해야 합니다. "
                 + "각 장소는 실제로 존재하는 지역이어야 하며, 허구의 장소나 가상의 위치는 포함하지 마세요. "
                 + "모든 장소 정보는 신뢰할 수 있는 출처(예: Google 지도, 위키피디아)를 기준으로 작성해 주세요. "
                 + "시간은 반드시 HH:MM으로 작성해주세요."
-                + "응답은 반드시 완전한 JSON 형식이어야 하며, JSON 외의 내용은 포함하지 마세요. 형식은 다음과 같습니다:\n" + "```json\n" + "{\n"
+                + "응답은 반드시 완전한 JSON 형식이어야 하며, JSON 외의 내용은 포함하지 마세요. 한글로 대답하세요. 형식은 다음과 같습니다:\n" + "```json\n" + "{\n"
                 + "  \"day1\": [\n"
                 + "    {\"name\": \"장소명\", \"lat\": 위도, \"lng\": 경도, \"description\": \"설명\", \"departTime\": \"출발시간\", \"arriveTime\": \"도착시간\", \"type\": \"관광지/식당/카페/숙박\"}\n"
                 + "  ],\n" + "  \"day2\": [...],\n" + "  ...\n" + "  \"day%d\": [...]\n" + "}\n" + "```", days,
                 ageGroup, gender, groupSize, theme, startDate, endDate, days);
+    }
+
+    private String generateBusinessPrompt(int days, String region, String includeOptions, String startTime, String endTime, String startDate, String endDate) {
+        return String.format("다음 조건에 따라 %d일간의 출장 일정을 JSON 형식으로 작성해 주세요: "
+                + "지역: %s, 포함할 활동: %s, 출장 업무 시작 시간: %s, 출장 업무 종료 시간: %s, 시작일: %s, 종료일: %s. "
+                + "일정은 %s부터 %s 사이의 시간을 제외한 나머지 시간으로 구성하고, 주어진 활동만을 포함해야 합니다. "
+                + "각 장소는 실제로 존재하는 지역이어야 하며, 전시회는 현재 열리고 있는 국내의 전시회이어야 합니다. 허구의 장소나 가상의 위치는 포함하지 마세요. "
+                + "모든 장소 정보는 신뢰할 수 있는 출처(예: Google 지도, 위키피디아)를 기준으로 작성해 주세요. "
+                + "시간은 반드시 HH:MM으로 작성해주세요."
+                + "응답은 반드시 완전한 JSON 형식이어야 하며, JSON 외의 내용은 포함하지 마세요. 한글로 대답하세요. 형식은 다음과 같습니다:\n" + "```json\n" + "{\n"
+                + "  \"day1\": [\n"
+                + "    {\"name\": \"장소명\", \"lat\": 위도, \"lng\": 경도, \"description\": \"설명\", \"departTime\": \"출발시간\", \"arriveTime\": \"도착시간\", \"type\": \"활동 유형\"}\n"
+                + "  ],\n" + "  \"day2\": [...],\n" + "  ...\n" + "  \"day%d\": [...]\n" + "}\n" + "```", days, region,
+                includeOptions, startTime, endTime, startDate, endDate, startTime, endTime, days);
     }
 
     private Map<String, List<Map<String, Object>>> parseAIResponse(String aiGeneratedText) {
@@ -166,5 +183,15 @@ public class ScheduleService {
             log.error("JSON 파싱 오류: " + e.getMessage(), e);
             return null;
         }
+    }
+
+    public String getScheduleByTheme(String themeName) throws IOException {
+        String filePath = DATA_DIR + themeName + ".json";
+        return new String(Files.readAllBytes(Paths.get(filePath)));
+    }
+
+    public String getScheduleByExhibition(String exhibitionName) throws IOException {
+        String filePath = EXHIBITIONS_DIR + exhibitionName + ".json";
+        return new String(Files.readAllBytes(Paths.get(filePath)));
     }
 }
