@@ -13,6 +13,8 @@ public class User {
 
 	private String userEmail;
 
+	private char isGoogle;
+
 	public String getUserId() {
 		return userId;
 	}
@@ -43,6 +45,14 @@ public class User {
 
 	public void setUserEmail(String userEmail) {
 		this.userEmail = userEmail;
+	}
+
+	public char getIsGoogle() {
+		return isGoogle;
+	}
+
+	public void setIsGoogle(char isGoogle) {
+		this.isGoogle = isGoogle;
 	}
 
 }

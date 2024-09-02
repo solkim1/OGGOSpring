@@ -1,12 +1,14 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "file:///C:\Project\Spring\OGGOSpring-develop\src\main\resources\mybatis-3-mapper.dtd">
 <mapper namespace="com.oggo.planmaker.mapper.UserMapper">
 
 	<resultMap id="userResultMap" type="User">
 		<id property="userId" column="user_id" />
+
+		<result property="userPw" column="user_pw" />
 		<result property="userNick" column="user_Nick" />
 		<result property="userEmail" column="user_email" />
+		<result property="isGoogle" column="is_google" />
+
 	</resultMap>
 
 	<insert id="join" parameterType="User">
@@ -42,19 +44,24 @@
 
 	<insert id="googleJoin">
 		INSERT INTO tb_user
-		(user_id ,user_nick ,user_email, is_google)
+
+		(user_id ,user_nick ,user_email,
+		is_google)
+
 		VALUES (#{userId} ,#{userNick} ,#{userEmail}, 'Y')
 	</insert>
 
 	<update id="editProfile" parameterType="User">
 		UPDATE tb_user
-		SET user_nick = #{userNick} , user_pw = #{userPw}
+
+		SET
+		user_nick = #{userNick} , user_pw = #{userPw}
 		WHERE user_id = #{userId}
-		AND user_email = #{userEmail}
 	</update>
-	
-	<select id="getUserById" parameterType="String" 
-	resultMap="userResultMap">
+
+	<select id="getUserById" parameterType="User"
+		resultMap="userResultMap">
+
 		SELECT * FROM tb_user
 		WHERE user_id = #{userId}
 	</select>
