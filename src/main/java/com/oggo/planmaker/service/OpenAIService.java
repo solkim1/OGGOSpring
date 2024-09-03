@@ -42,7 +42,7 @@ public class OpenAIService {
         headers.setBearerAuth(apiKey);
 
         Map<String, Object> requestBody = new HashMap<>();
-        requestBody.put("model", "gpt-3.5-turbo");
+        requestBody.put("model", "gpt-4o");
         requestBody.put("messages", List.of(
                 Map.of("role", "system", "content", "당신은 유용한 여행 추천 도우미입니다."),
                 Map.of("role", "user", "content", prompt)
@@ -62,7 +62,7 @@ public class OpenAIService {
                 }
             }
             log.warn("Unexpected response format from OpenAI API: {}", response);
-            return CompletableFuture.completedFuture(""); // 빈 문자열 반환
+            return CompletableFuture.completedFuture("");
         } catch (Exception e) {
             log.error("Error while calling OpenAI API: " + e.getMessage(), e);
             return CompletableFuture.failedFuture(new RuntimeException("OpenAI API 호출 중 오류 발생: " + e.getMessage()));
