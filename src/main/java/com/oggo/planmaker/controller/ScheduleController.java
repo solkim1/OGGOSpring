@@ -37,103 +37,101 @@ import com.oggo.planmaker.service.ScheduleService;
 @RequestMapping("/api/schedules")
 public class ScheduleController {
 
-    private static final Logger logger = LoggerFactory.getLogger(ScheduleController.class);
-    private static final String DATA_DIR = "src/main/resources/data/";
-    
-    @Autowired
-    private ScheduleService scheduleService;
-    
-    @Autowired
-    private ScheduleMapper scheduleMapper;
+	private static final Logger logger = LoggerFactory.getLogger(ScheduleController.class);
+	private static final String DATA_DIR = "src/main/resources/data/";
 
+	@Autowired
+	private ScheduleService scheduleService;
 
-    @GetMapping("/travel/generate")
-    public CompletableFuture<ResponseEntity<Map<String, List<Map<String, Object>>>>> generateTravelSchedule(
+	@Autowired
+	private ScheduleMapper scheduleMapper;
 
-            @RequestParam String userId,
-            @RequestParam int days,
-            @RequestParam String ageGroup,
-            @RequestParam String gender,
-            @RequestParam String groupSize,
-            @RequestParam String theme,
-            @RequestParam String startDate,
-            @RequestParam String endDate) {
+	@GetMapping("/travel/generate")
+	public CompletableFuture<ResponseEntity<Map<String, List<Map<String, Object>>>>> generateTravelSchedule(
 
-        return scheduleService.generateTravelItinerary(userId, days, ageGroup, gender, groupSize, theme, startDate, endDate)
-                .thenApply(ResponseEntity::ok);
-    }
+			@RequestParam String userId, @RequestParam int days, @RequestParam String ageGroup,
+			@RequestParam String gender, @RequestParam String groupSize, @RequestParam String theme,
+			@RequestParam String startDate, @RequestParam String endDate) {
 
-    @GetMapping("/business/generate")
-    public CompletableFuture<ResponseEntity<Map<String, List<Map<String, Object>>>>> generateBusinessSchedule(
-            @RequestParam String userId,
-            @RequestParam int days,
-            @RequestParam String region,
-            @RequestParam String includeOptions,
-            @RequestParam String startTime,
-            @RequestParam String endTime,
-            @RequestParam String startDate,
-            @RequestParam String endDate) {
-        return scheduleService.generateBusinessItinerary(userId, days, region, includeOptions, startTime, endTime, startDate, endDate)
-                .thenApply(ResponseEntity::ok);
+		return scheduleService
+				.generateTravelItinerary(userId, days, ageGroup, gender, groupSize, theme, startDate, endDate)
+				.thenApply(ResponseEntity::ok);
+	}
 
-    }
-    @GetMapping("/patchschedule")
-    public String patchschedule(@RequestParam("scheNum") String scheNum) {
-        System.out.println(scheNum);
+	@GetMapping("/business/generate")
+	public CompletableFuture<ResponseEntity<Map<String, List<Map<String, Object>>>>> generateBusinessSchedule(
+			@RequestParam String userId, @RequestParam int days, @RequestParam String region,
+			@RequestParam String includeOptions, @RequestParam String startTime, @RequestParam String endTime,
+			@RequestParam String startDate, @RequestParam String endDate) {
+		return scheduleService
+				.generateBusinessItinerary(userId, days, region, includeOptions, startTime, endTime, startDate, endDate)
+				.thenApply(ResponseEntity::ok);
 
-        List<ScheduleJson> schedule = scheduleMapper.patchschedule(scheNum);
-        
-        for (ScheduleJson sche : schedule) {
-            System.out.println(sche.toString());
-        }
+	}
 
-        // Create an ObjectMapper instance
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode rootNode = mapper.createObjectNode();
+	@GetMapping("/patchschedule")
+	public String patchschedule(@RequestParam("scheNum") String scheNum) {
+		System.out.println(scheNum);
 
-        Map<String, List<ScheduleJson>> groupedByDate = new TreeMap<>();
-        for (ScheduleJson sche : schedule) {
-            String date = sche.getStartDate();
-            groupedByDate.putIfAbsent(date, new ArrayList<>());
-            groupedByDate.get(date).add(sche);
-        }
+		List<ScheduleJson> schedule = scheduleMapper.patchschedule(scheNum);
 
-        // 같은날짜 day ~ 로 그룹화
-        int dayCounter = 1;
-        for (Map.Entry<String, List<ScheduleJson>> entry : groupedByDate.entrySet()) {
-            ArrayNode dayArray = mapper.createArrayNode();
+//        for (ScheduleJson sche : schedule) {
+//            System.out.println(sche.toString());
+//        }
 
-            for (ScheduleJson sche : entry.getValue()) {
-                ObjectNode scheduleNode = mapper.createObjectNode();
-                scheduleNode.put("name", sche.getTitle());
-                scheduleNode.put("lat", sche.getLat());
-                scheduleNode.put("lng", sche.getLng());
-                scheduleNode.put("description", sche.getDescription());
-                scheduleNode.put("departTime", sche.getDepartTime().substring(0, 5)); // DB에 초까지 저장되어있으므로 잘라내기
-                scheduleNode.put("arriveTime", sche.getArriveTime().substring(0, 5)); // DB에 초까지 저장되어있으므로 잘라내기
-                scheduleNode.put("type", sche.getType());
+		// Create an ObjectMapper instance
+		ObjectMapper mapper = new ObjectMapper();
+		ObjectNode rootNode = mapper.createObjectNode();
 
-                dayArray.add(scheduleNode);
-            }
+		Map<String, List<ScheduleJson>> groupedByDate = new TreeMap<>();
+		for (ScheduleJson sche : schedule) {
+			String date = sche.getStartDate();
+			groupedByDate.putIfAbsent(date, new ArrayList<>());
+			groupedByDate.get(date).add(sche);
+		}
 
-            // 같은날짜 day ~ 로 그룹화
-            rootNode.set("day" + dayCounter, dayArray);
-            dayCounter++;
-        }
+		// 같은날짜 day ~ 로 그룹화
+		int dayCounter = 1;
+		for (Map.Entry<String, List<ScheduleJson>> entry : groupedByDate.entrySet()) {
+			ArrayNode dayArray = mapper.createArrayNode();
 
-        // JSON 데이터 String 으로 리턴
-        try {
-            return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(rootNode);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
+			for (ScheduleJson sche : entry.getValue()) {
+				ObjectNode scheduleNode = mapper.createObjectNode();
 
-    @GetMapping("/all")
-    public ResponseEntity<List<Schedule>> getAllSchedules(@RequestParam("userId") String userId) {
-        return ResponseEntity.ok(scheduleService.getAllSchedules(userId));
-    }
+				if (sche.getIsBusiness().equals("Y")) {
+					scheduleNode.put("isBusiness", true);
+				} else {
+					scheduleNode.put("isBusiness", false);
+				}
+				scheduleNode.put("name", sche.getTitle());
+				scheduleNode.put("lat", sche.getLat());
+				scheduleNode.put("lng", sche.getLng());
+				scheduleNode.put("description", sche.getDescription());
+				scheduleNode.put("departTime", sche.getDepartTime().substring(0, 5)); // DB에 초까지 저장되어있으므로 잘라내기
+				scheduleNode.put("arriveTime", sche.getArriveTime().substring(0, 5)); // DB에 초까지 저장되어있으므로 잘라내기
+				scheduleNode.put("type", sche.getType());
+
+				dayArray.add(scheduleNode);
+			}
+
+			// 같은날짜 day ~ 로 그룹화
+			rootNode.set("day" + dayCounter, dayArray);
+			dayCounter++;
+		}
+
+		// JSON 데이터 String 으로 리턴
+		try {
+			return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(rootNode);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	@GetMapping("/all")
+	public ResponseEntity<List<Schedule>> getAllSchedules(@RequestParam("userId") String userId) {
+		return ResponseEntity.ok(scheduleService.getAllSchedules(userId));
+	}
 
 //    @GetMapping("/travel")
 //    public ResponseEntity<List<Schedule>> getTravelSchedules(@RequestParam("userId") String userId) {
@@ -150,67 +148,69 @@ public class ScheduleController {
 //        return ResponseEntity.ok(scheduleService.getImportantSchedules(userId));
 //    }
 
-    @PutMapping("/toggleImportance/{scheNum}")
-    public ResponseEntity<Void> toggleImportance(@PathVariable String scheNum) {
-        scheduleService.toggleImportance(scheNum);
-        return ResponseEntity.ok().build();
-    }
+	@PutMapping("/toggleImportance/{scheNum}")
+	public ResponseEntity<Void> toggleImportance(@PathVariable String scheNum) {
+		scheduleService.toggleImportance(scheNum);
+		return ResponseEntity.ok().build();
+	}
 
-    @DeleteMapping("/delete/{scheNum}")
-    public ResponseEntity<Void> deleteSchedule(@PathVariable String scheNum) {
-        scheduleService.deleteSchedule(scheNum);
-        return ResponseEntity.ok().build();
-    }
+	@DeleteMapping("/delete/{scheNum}")
+	public ResponseEntity<Void> deleteSchedule(@PathVariable String scheNum) {
+		scheduleService.deleteSchedule(scheNum);
+		return ResponseEntity.ok().build();
+	}
 
-    @PutMapping("/update")
-    public ResponseEntity<Void> updateSchedule(@RequestParam String scheNum, @RequestParam String scheTitle, @RequestParam String scheDesc) {
-        scheduleService.updateSchedule(scheNum, scheTitle, scheDesc);
-        return ResponseEntity.ok().build();
-    }
-    
-    @PostMapping("/save")
-    public ResponseEntity<Map<String, Object>> insertTravelCourses(@RequestBody List<ScheduleJson> scheduleJsonList) throws SQLException {
-    	System.out.println("좀돼라");
-        logger.info("Received request to save schedules: {}", scheduleJsonList);
-        Map<String, Object> response = new HashMap<>();
+	@PutMapping("/update")
+	public ResponseEntity<Void> updateSchedule(@RequestParam String scheNum, @RequestParam String scheTitle,
+			@RequestParam String scheDesc) {
+		scheduleService.updateSchedule(scheNum, scheTitle, scheDesc);
+		return ResponseEntity.ok().build();
+	}
 
-        try {
-            scheduleService.saveSchedules(scheduleJsonList);
-            
-            response.put("status", "success");
-            response.put("message", "성공적으로 저장되었습니다.");
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            logger.error("Error occurred while saving schedules: {}", e.getMessage(), e);
-            response.put("status", "error");
-            response.put("message", "저장 중 오류 발생: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
-    }
-    
+	@PostMapping("/save")
+	public ResponseEntity<Map<String, Object>> insertTravelCourses(@RequestBody List<ScheduleJson> scheduleJsonList)
+			throws SQLException {
+		logger.info("Received request to save schedules: {}", scheduleJsonList);
+		for(ScheduleJson sche:scheduleJsonList ) {
+			System.out.println(sche.toString());
+		}
+		Map<String, Object> response = new HashMap<>();
 
-    @GetMapping("/themes/{themeName}")
-    public ResponseEntity<?> getScheduleByTheme(@PathVariable String themeName) {
-        try {
-            String jsonContent = scheduleService.getScheduleByTheme(themeName);
+		try {
+			scheduleService.saveSchedules(scheduleJsonList);
 
-            return ResponseEntity.ok(jsonContent);
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                 .body("{\"error\": \"Schedule not found for theme: " + themeName + "\"}");
-        }
-    }
+			response.put("status", "success");
+			response.put("message", "성공적으로 저장되었습니다.");
+			return ResponseEntity.ok(response);
+		} catch (Exception e) {
+			logger.error("Error occurred while saving schedules: {}", e.getMessage(), e);
+			response.put("status", "error");
+			response.put("message", "저장 중 오류 발생: " + e.getMessage());
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+		}
+	}
 
-    
-    @GetMapping("/exhibitions/{exhibitionName}")
-    public ResponseEntity<String> getScheduleByExhibition(@PathVariable String exhibitionName) {
-        try {
-            String jsonContent = scheduleService.getScheduleByExhibition(exhibitionName);
-            return ResponseEntity.ok(jsonContent);
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                 .body("{\"error\": \"Schedule not found for exhibition: " + exhibitionName + "\"}");
-        }
-    }
+	@GetMapping("/themes/{themeName}")
+	public ResponseEntity<?> getScheduleByTheme(@PathVariable String themeName) {
+		try {
+			String jsonContent = scheduleService.getScheduleByTheme(themeName);
+
+			return ResponseEntity.ok(jsonContent);
+		} catch (IOException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+					.body("{\"error\": \"Schedule not found for theme: " + themeName + "\"}");
+		}
+	}
+
+	@GetMapping("/exhibitions/{exhibitionName}")
+	public ResponseEntity<String> getScheduleByExhibition(@PathVariable String exhibitionName) {
+		try {
+			String jsonContent = scheduleService.getScheduleByExhibition(exhibitionName);
+			return ResponseEntity.ok(jsonContent);
+		} catch (IOException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+					.body("{\"error\": \"Schedule not found for exhibition: " + exhibitionName + "\"}");
+		}
+	}
 
 }

@@ -30,6 +30,7 @@
 		<result property="departTime" column="sche_st_tm" />
 		<result property="arriveTime" column="sche_ed_tm" />
 		<result property="type" column="poi_type" />
+		<result property="isBusiness" column="is_business" />
 	</resultMap>
 
 	<select id="findAllSchedulesByUserId"
@@ -126,7 +127,7 @@
 
 	<select id="patchschedule" parameterType="string"
 		resultMap="JsonMapping">
-		SELECT A.sche_num, A.user_id, B.poi_name, B.lat, B.lng, B.poi_desc, A.sche_st_dt, A.sche_ed_dt, A.sche_st_tm, A.sche_ed_tm, B.poi_type
+		SELECT A.is_business, A.sche_num, A.user_id, B.poi_name, B.lat, B.lng, B.poi_desc, A.sche_st_dt, A.sche_ed_dt, A.sche_st_tm, A.sche_ed_tm, B.poi_type
 		FROM tb_schedule A
 		JOIN fake_poi B
 		ON A.poi_idx = B.poi_idx
