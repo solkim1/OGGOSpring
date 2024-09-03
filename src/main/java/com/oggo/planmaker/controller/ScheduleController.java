@@ -1,9 +1,11 @@
 package com.oggo.planmaker.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
@@ -11,11 +13,22 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.oggo.planmaker.mapper.ScheduleMapper;
 import com.oggo.planmaker.model.Schedule;
 import com.oggo.planmaker.model.ScheduleJson;
 import com.oggo.planmaker.service.OpenAIService;
@@ -29,6 +42,9 @@ public class ScheduleController {
 
     @Autowired
     private ScheduleService scheduleService;
+    
+    @Autowired
+	private ScheduleMapper scheduleMapper;
     
     @Autowired
     private OpenAIService openAIService;
@@ -64,6 +80,65 @@ public class ScheduleController {
         return scheduleService.generateBusinessItinerary(userId, days, region, includeOptions, startTime, endTime, startDate, endDate)
                 .thenApply(ResponseEntity::ok);
     }
+    
+    @GetMapping("/patchschedule")
+	public String patchschedule(@RequestParam("scheNum") String scheNum) {
+		System.out.println(scheNum);
+
+		List<ScheduleJson> schedule = scheduleMapper.patchschedule(scheNum);
+
+//        for (ScheduleJson sche : schedule) {
+//            System.out.println(sche.toString());
+//        }
+
+		// Create an ObjectMapper instance
+		ObjectMapper mapper = new ObjectMapper();
+		ObjectNode rootNode = mapper.createObjectNode();
+
+		Map<String, List<ScheduleJson>> groupedByDate = new TreeMap<>();
+		for (ScheduleJson sche : schedule) {
+			String date = sche.getStartDate();
+			groupedByDate.putIfAbsent(date, new ArrayList<>());
+			groupedByDate.get(date).add(sche);
+		}
+
+		// 같은날짜 day ~ 로 그룹화
+		int dayCounter = 1;
+		for (Map.Entry<String, List<ScheduleJson>> entry : groupedByDate.entrySet()) {
+			ArrayNode dayArray = mapper.createArrayNode();
+
+			for (ScheduleJson sche : entry.getValue()) {
+				ObjectNode scheduleNode = mapper.createObjectNode();
+
+				if (sche.getIsBusiness().equals("Y")) {
+					scheduleNode.put("isBusiness", true);
+				} else {
+					scheduleNode.put("isBusiness", false);
+				}
+				scheduleNode.put("name", sche.getTitle());
+				scheduleNode.put("lat", sche.getLat());
+				scheduleNode.put("lng", sche.getLng());
+				scheduleNode.put("description", sche.getDescription());
+				scheduleNode.put("departTime", sche.getDepartTime().substring(0, 5)); // DB에 초까지 저장되어있으므로 잘라내기
+				scheduleNode.put("arriveTime", sche.getArriveTime().substring(0, 5)); // DB에 초까지 저장되어있으므로 잘라내기
+				scheduleNode.put("type", sche.getType());
+
+				dayArray.add(scheduleNode);
+			}
+
+			// 같은날짜 day ~ 로 그룹화
+			rootNode.set("day" + dayCounter, dayArray);
+			dayCounter++;
+		}
+
+		// JSON 데이터 String 으로 리턴
+		try {
+			return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(rootNode);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 
     @PostMapping("/travel/recall")
     public CompletableFuture<ResponseEntity<Map<String, List<Map<String, Object>>>>> regenerateTravelSchedule(
