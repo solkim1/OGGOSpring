@@ -34,8 +34,8 @@ public class OpenAIService {
 				.setReadTimeout(Duration.ofSeconds(60)).build();
 	}
 
-    @SuppressWarnings("unchecked")
-	@Async
+
+    @Async
     @Cacheable(value = "itineraries", key = "#prompt")
     public CompletableFuture<String> generateItinerary(String prompt) {
         HttpHeaders headers = new HttpHeaders();

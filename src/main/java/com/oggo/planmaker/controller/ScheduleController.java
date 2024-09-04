@@ -40,10 +40,12 @@ public class ScheduleController {
 
     private static final Logger logger = LoggerFactory.getLogger(ScheduleController.class);
 
+
     @Autowired
     private ScheduleService scheduleService;
     
     @Autowired
+
 	private ScheduleMapper scheduleMapper;
     
     @Autowired
@@ -54,6 +56,7 @@ public class ScheduleController {
 
     @GetMapping("/travel/generate")
     public CompletableFuture<ResponseEntity<Map<String, List<Map<String, Object>>>>> generateTravelSchedule(
+
             @RequestParam String userId,
             @RequestParam int days,
             @RequestParam String ageGroup,
@@ -65,6 +68,7 @@ public class ScheduleController {
 
         return scheduleService.generateTravelItinerary(userId, days, ageGroup, gender, groupSize, theme, startDate, endDate)
                 .thenApply(ResponseEntity::ok);
+
     }
 
     @GetMapping("/business/generate")
@@ -292,6 +296,7 @@ public class ScheduleController {
         return null;
     }
 
+
     @GetMapping("/all")
     public ResponseEntity<List<Schedule>> getAllSchedules(@RequestParam("userId") String userId) {
         return ResponseEntity.ok(scheduleService.getAllSchedules(userId));
@@ -332,6 +337,8 @@ public class ScheduleController {
     
     @PostMapping("/save")
     public ResponseEntity<Map<String, Object>> insertTravelCourses(@RequestBody List<ScheduleJson> scheduleJsonList) {
+
+
         logger.info("Received request to save schedules: {}", scheduleJsonList);
         Map<String, Object> response = new HashMap<>();
 
@@ -349,16 +356,19 @@ public class ScheduleController {
         }
     }
 
+
     @GetMapping("/themes/{themeName}")
     public ResponseEntity<?> getScheduleByTheme(@PathVariable String themeName) {
         try {
             String jsonContent = scheduleService.getScheduleByTheme(themeName);
+
             return ResponseEntity.ok(jsonContent);
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("{\"error\": \"Schedule not found for theme: " + themeName + "\"}");
         }
     }
+
 
     @GetMapping("/exhibitions/{exhibitionName}")
     public ResponseEntity<String> getScheduleByExhibition(@PathVariable String exhibitionName) {
@@ -367,8 +377,11 @@ public class ScheduleController {
             return ResponseEntity.ok(jsonContent);
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
+
                     .body("{\"error\": \"Schedule not found for exhibition: " + exhibitionName + "\"}");
         }
     }
 
 }
+
+

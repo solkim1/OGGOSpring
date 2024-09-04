@@ -36,5 +36,6 @@ public interface ScheduleMapper {
 	
 	void callSaveScheduleWithPOI(Map<String, Object> params);
 	
+
 }
 
