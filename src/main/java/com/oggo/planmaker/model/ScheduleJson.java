@@ -17,6 +17,7 @@ public class ScheduleJson {
     private String scheduleDesc;
 
 
+
    @Override
    public String toString() {
       return "ScheduleJson [userId=" + userId + ", title=" + title + ", scheNum=" + scheNum + ", startDate="

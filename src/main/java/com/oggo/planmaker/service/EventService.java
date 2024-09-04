@@ -1,7 +1,6 @@
 package com.oggo.planmaker.service;
 
 import java.io.IOException;
-
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -11,16 +10,13 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.Events;
+import com.oggo.planmaker.config.GoogleCalendarConfig;
 import com.oggo.planmaker.mapper.EventMapper;
-import com.oggo.planmaker.config.GoogleCalendarConfig;
 import com.oggo.planmaker.model.Event;
-import com.oggo.planmaker.model.Event;
-import com.oggo.planmaker.config.GoogleCalendarConfig;
+
 
 @Service
 public class EventService {

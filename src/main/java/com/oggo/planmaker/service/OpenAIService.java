@@ -34,36 +34,39 @@ public class OpenAIService {
 				.setReadTimeout(Duration.ofSeconds(60)).build();
 	}
 
+    @SuppressWarnings("unchecked")
 	@Async
+    @Cacheable(value = "itineraries", key = "#prompt")
+    public CompletableFuture<String> generateItinerary(String prompt) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(apiKey);
 
-	@Cacheable(value = "itineraries", key = "#prompt")
-	public CompletableFuture<String> generateItinerary(String prompt) {
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		headers.setBearerAuth(apiKey);
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("model", "gpt-4o");
+        requestBody.put("messages", List.of(
+                Map.of("role", "system", "content", "당신은 유용한 여행 추천 도우미입니다."),
+                Map.of("role", "user", "content", prompt)
+        ));
+        requestBody.put("max_tokens", 2500);
 
-		Map<String, Object> requestBody = new HashMap<>();
-		requestBody.put("model", "gpt-3.5-turbo");
-		requestBody.put("messages", List.of(Map.of("role", "system", "content", "You are a helpful assistant."),
-				Map.of("role", "user", "content", prompt)));
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
 
-		requestBody.put("max_tokens", 2500);
-
-		HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
-
-		try {
-			Map<String, Object> response = restTemplate.postForObject(OPENAI_API_URL, request, Map.class);
-			if (response != null && response.containsKey("choices")) {
-				List<Map<String, Object>> choices = (List<Map<String, Object>>) response.get("choices");
-				Map<String, Object> message = (Map<String, Object>) choices.get(0).get("message");
-				return CompletableFuture.completedFuture((String) message.get("content"));
-			} else {
-				log.warn("Unexpected response format from OpenAI API");
-				return CompletableFuture.completedFuture("");
-			}
-		} catch (Exception e) {
-			log.error("Error while calling OpenAI API: " + e.getMessage(), e);
-			return CompletableFuture.failedFuture(new RuntimeException("OpenAI API 호출 중 오류 발생: " + e.getMessage()));
-		}
-	}
+        try {
+            // OpenAI API 요청
+            Map<String, Object> response = restTemplate.postForObject(OPENAI_API_URL, request, Map.class);
+            if (response != null && response.containsKey("choices")) {
+                List<Map<String, Object>> choices = (List<Map<String, Object>>) response.get("choices");
+                Map<String, Object> message = (Map<String, Object>) choices.get(0).get("message");
+                if (message != null && message.containsKey("content")) {
+                    return CompletableFuture.completedFuture((String) message.get("content"));
+                }
+            }
+            log.warn("Unexpected response format from OpenAI API: {}", response);
+            return CompletableFuture.completedFuture("");
+        } catch (Exception e) {
+            log.error("Error while calling OpenAI API: " + e.getMessage(), e);
+            return CompletableFuture.failedFuture(new RuntimeException("OpenAI API 호출 중 오류 발생: " + e.getMessage()));
+        }
+    }
 }

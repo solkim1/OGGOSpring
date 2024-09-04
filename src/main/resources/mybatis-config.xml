@@ -4,6 +4,10 @@
     PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
     "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 155a23215ac1f68c90dc69dd7a6653c6978ded6c
 
     모든 타입 별칭은 이 하나의 태그 내에 정의
 
@@ -11,7 +15,11 @@
         <typeAlias alias="User" type="com.oggo.planmaker.model.User"/>
         <typeAlias alias="Event" type="com.oggo.planmaker.model.Event"/>
     </typeAliases>
+<<<<<<< HEAD
 
+=======
+<<<<<<< HEAD
+>>>>>>> 155a23215ac1f68c90dc69dd7a6653c6978ded6c
     다른 설정들 추가 가능
 </configuration> -->
  
