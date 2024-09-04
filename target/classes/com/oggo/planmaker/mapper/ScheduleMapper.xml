@@ -13,6 +13,7 @@
 		<result property="scheEdDt" column="sche_ed_dt" />
 		<result property="scheEdTm" column="sche_ed_tm" />
 		<result property="isBusiness" column="is_business" />
+		<result property="scheColor" column="sche_color" />
 		<result property="isImportance" column="is_importance" />
 		<result property="poiIdx" column="poi_idx" />
 		<result property="scheNum" column="sche_num" />
@@ -39,6 +40,7 @@
 		SELECT
 		sche_num,
 		sche_title,
+		sche_color,
 		MIN(sche_st_dt) AS sche_st_dt,
 		MAX(sche_ed_dt) AS sche_ed_dt,
 		MAX(is_importance) AS is_importance,
@@ -47,7 +49,7 @@
 		FROM
 		tb_schedule
 		WHERE user_id = #{userId}
-		GROUP BY sche_num, sche_title
+		GROUP BY sche_num, sche_title ,sche_color
 		ORDER BY MIN(sche_st_dt) DESC
 	</select>
 
