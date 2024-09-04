@@ -117,31 +117,54 @@ public class ScheduleService {
     }
 
     private String generateTravelPrompt(int days, String ageGroup, String gender, String groupSize, String theme, String startDate, String endDate) {
-        return String.format("다음 조건에 따라 %d일간의 여행 일정을 JSON 형식으로 작성해 주세요: "
-                + "연령대: %s, 성별: %s, 그룹 크기: %s, 테마: %s, 시작일: %s, 종료일: %s. "
-                + "일정은 매일 아침 9시부터 저녁 9시까지로 구성하고, 관광지, 식당, 카페, 숙박을 포함해야 합니다. "
-                + "각 장소는 실제로 존재하는 지역이어야 하며, 허구의 장소나 가상의 위치는 포함하지 마세요. "
-                + "모든 장소 정보는 신뢰할 수 있는 출처(예: Google 지도, 위키피디아)를 기준으로 작성해 주세요. "
-                + "시간은 반드시 HH:MM으로 작성해주세요."
-                + "응답은 반드시 완전한 JSON 형식이어야 하며, JSON 외의 내용은 포함하지 마세요. 한글로 대답하세요. 형식은 다음과 같습니다:\n" + "```json\n" + "{\n"
-                + "  \"day1\": [\n"
-                + "    {\"name\": \"장소명\", \"lat\": 위도, \"lng\": 경도, \"description\": \"설명\", \"departTime\": \"출발시간\", \"arriveTime\": \"도착시간\", \"type\": \"관광지/식당/카페/숙박\"}\n"
-                + "  ],\n" + "  \"day2\": [...],\n" + "  ...\n" + "  \"day%d\": [...]\n" + "}\n" + "```", days,
-                ageGroup, gender, groupSize, theme, startDate, endDate, days);
-    }
 
-    private String generateBusinessPrompt(int days, String region, String includeOptions, String startTime, String endTime, String startDate, String endDate) {
-        return String.format("다음 조건에 따라 %d일간의 출장 일정을 JSON 형식으로 작성해 주세요: "
-                + "지역: %s, 포함할 활동: %s, 출장 업무 시작 시간: %s, 출장 업무 종료 시간: %s, 시작일: %s, 종료일: %s. "
-                + "일정은 %s부터 %s 사이의 시간을 제외한 나머지 시간으로 구성하고, 주어진 활동만을 포함해야 합니다. "
-                + "각 장소는 실제로 존재하는 지역이어야 하며, 전시회는 현재 열리고 있는 국내의 전시회이어야 합니다. 허구의 장소나 가상의 위치는 포함하지 마세요. "
-                + "모든 장소 정보는 신뢰할 수 있는 출처(예: Google 지도, 위키피디아)를 기준으로 작성해 주세요. "
-                + "시간은 반드시 HH:MM으로 작성해주세요."
-                + "응답은 반드시 완전한 JSON 형식이어야 하며, JSON 외의 내용은 포함하지 마세요. 한글로 대답하세요. 형식은 다음과 같습니다:\n" + "```json\n" + "{\n"
+        return String.format("아래 조건에 맞춰 %d일간의 여행 일정을 JSON 형식으로 작성해 주세요:\n"
+                + "- 연령대: %s, 성별: %s, 그룹 크기: %s명, 테마: %s\n"
+                + "- 기간: %s부터 %s까지, 반드시 매일 아침 9시부터 저녁 9시까지 활동이 꽉 차도록 구성\n"
+                + "- 사람이 보편적으로 활동하는 시간에 맞춰서 추천해주세요"
+                + "- 다음 장소는 현재 위치로부터 반경 3km 내에 위치해야 함\n"
+                + "- 각 장소의 설명은 40자 이하로 작성\n"
+                + "- 일정에는 관광지, 식당, 카페, 숙박이 포함되며, 모두 실제 존재하는 장소여야 함\n"
+                + "- 모든 장소 정보는 신뢰할 수 있는 출처(예: Google 지도, 위키피디아)에 기반해야 함\n"
+                + "- 시간은 HH:MM 형식으로 작성\n"
+                + "- 응답은 완전한 JSON 형식이어야 하며, JSON 외의 내용은 포함하지 마세요\n"
+                + "- 응답은 한글로 작성해 주세요\n"
+                + "JSON 형식의 예시는 다음과 같습니다:\n"
+                + "```json\n"
+                + "{\n"
                 + "  \"day1\": [\n"
-                + "    {\"name\": \"장소명\", \"lat\": 위도, \"lng\": 경도, \"description\": \"설명\", \"departTime\": \"출발시간\", \"arriveTime\": \"도착시간\", \"type\": \"활동 유형\"}\n"
-                + "  ],\n" + "  \"day2\": [...],\n" + "  ...\n" + "  \"day%d\": [...]\n" + "}\n" + "```", days, region,
-                includeOptions, startTime, endTime, startDate, endDate, startTime, endTime, days);
+                + "    {\"name\": \"장소명\", \"lat\": 위도, \"lng\": 경도, \"description\": \"설명 (40자 이하)\", \"departTime\": \"출발시간\", \"arriveTime\": \"도착시간\", \"type\": \"관광지/식당/카페/숙박\"}\n"
+                + "  ],\n"
+                + "  \"day2\": [...],\n"
+                + "  ...\n"
+                + "  \"day%d\": [...]\n"
+                + "}\n"
+                + "```", days, ageGroup, gender, groupSize, theme, startDate, endDate, days);
+    }
+ 
+    private String generateBusinessPrompt(int days, String region, String includeOptions, String startTime, String endTime, String startDate, String endDate) {
+        return String.format("아래 조건에 맞춰 %d일간의 출장 일정을 JSON 형식으로 작성해 주세요:\n"
+                + "- 지역: %s\n"
+                + "- 포함할 활동: %s\n"
+                + "- 출장 업무 시간: %s부터 %s까지, 이 시간을 피한 일정으로 구성\n"
+                + "- 사람이 보편적으로 활동하는 시간에 맞춰서 추천해주세요"
+                + "- 시작일: %s, 종료일: %s\n, 반드시 매일 아침 9시부터 저녁 9시까지 활동이 꽉 차도록 구성"
+                + "- 일정에는 각 포함할 활동이 반드시 존재해야하며, 전시회는 현재 열리고 있는 국내 전시회이어야 합니다\n"
+                + "- 모든 장소는 실제로 존재하는 장소여야 하며, 허구의 장소는 포함하지 마세요\n"
+                + "- 장소 정보는 신뢰할 수 있는 출처(예: Google 지도, 위키피디아)에 기반해 주세요\n"
+                + "- 시간은 HH:MM 형식으로 작성\n"
+                + "- 응답은 완전한 JSON 형식으로, JSON 외의 내용은 포함하지 말고, 한글로 작성해 주세요\n"
+                + "JSON 형식의 예시는 다음과 같습니다:\n"
+                + "```json\n"
+                + "{\n"
+                + "  \"day1\": [\n"
+                + "    {\"name\": \"장소명\", \"lat\": 위도, \"lng\": 경도, \"description\": \"설명 (40자 이하)\", \"departTime\": \"출발시간\", \"arriveTime\": \"도착시간\", \"type\": \"활동 유형\"}\n"
+                + "  ],\n"
+                + "  \"day2\": [...],\n"
+                + "  ...\n"
+                + "  \"day%d\": [...]\n"
+                + "}\n"
+                + "```", days, region, includeOptions, startTime, endTime, startDate, endDate, days);
     }
 
     private Map<String, List<Map<String, Object>>> parseAIResponse(String aiGeneratedText) {
@@ -189,6 +212,7 @@ public class ScheduleService {
         String filePath = DATA_DIR + themeName + ".json";
         return new String(Files.readAllBytes(Paths.get(filePath)));
     }
+
 
     public String getScheduleByExhibition(String exhibitionName) throws IOException {
         String filePath = EXHIBITIONS_DIR + exhibitionName + ".json";
