@@ -66,4 +66,8 @@
 		SELECT * FROM tb_user
 		WHERE user_id = #{userId}
 	</select>
+	
+	<delete id="deleteId">
+		DELETE FROM tb_user WHERE user_id = #{userId}
+	</delete>
 </mapper>
