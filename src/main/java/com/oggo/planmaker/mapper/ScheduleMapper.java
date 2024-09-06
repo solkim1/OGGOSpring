@@ -35,6 +35,6 @@ public interface ScheduleMapper {
 	List<ScheduleJson> patchschedule(@Param("sche_num")String scheNum);
 	
 	void callSaveScheduleWithPOI(Map<String, Object> params);
-	
+
 }
 

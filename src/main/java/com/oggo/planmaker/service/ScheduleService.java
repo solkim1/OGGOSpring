@@ -117,6 +117,7 @@ public class ScheduleService {
     }
 
     private String generateTravelPrompt(int days, String ageGroup, String gender, String groupSize, String theme, String startDate, String endDate) {
+
         return String.format("아래 조건에 맞춰 %d일간의 여행 일정을 JSON 형식으로 작성해 주세요:\n"
                 + "- 연령대: %s, 성별: %s, 그룹 크기: %s명, 테마: %s\n"
                 + "- 기간: %s부터 %s까지, 반드시 매일 아침 9시부터 저녁 9시까지 활동이 꽉 차도록 구성\n"
@@ -211,6 +212,7 @@ public class ScheduleService {
         String filePath = DATA_DIR + themeName + ".json";
         return new String(Files.readAllBytes(Paths.get(filePath)));
     }
+
 
     public String getScheduleByExhibition(String exhibitionName) throws IOException {
         String filePath = EXHIBITIONS_DIR + exhibitionName + ".json";
