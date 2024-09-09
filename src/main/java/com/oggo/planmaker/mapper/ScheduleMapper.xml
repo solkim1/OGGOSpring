@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "file:///C:\Users\sr139\OneDrive\Desktop\OGGOSpring\planmakerSpring\src\main\resources\mybatis-3-mapper.dtd">
+
+<mapper namespace="com.oggo.planmaker.mapper.ScheduleMapper">
+	<resultMap id="ScheduleResultMap"
+		type="com.oggo.planmaker.model.Schedule">
+		<id property="scheIdx" column="sche_idx" />
+		<result property="userId" column="user_id" />
+		<result property="scheTitle" column="sche_title" />
+		<result property="scheDesc" column="sche_desc" />
+		<result property="scheStDt" column="sche_st_dt" />
+		<result property="scheStTm" column="sche_st_tm" />
+		<result property="scheEdDt" column="sche_ed_dt" />
+		<result property="scheEdTm" column="sche_ed_tm" />
+		<result property="isBusiness" column="is_business" />
+		<result property="scheColor" column="sche_color" />
+		<result property="createdAt" column="created_at" />
+		<result property="updatedAt" column="updated_at" />
+		<result property="isImportance" column="is_importance" />
+		<result property="poiIdx" column="poi_idx" />
+		<result property="scheNum" column="sche_num" />
+	</resultMap>
+
+	
+	<resultMap id="JsonMapping"
+		type="com.oggo.planmaker.model.ScheduleJson">
+		<id property="scheNum" column="sche_num" />
+		<id property="userId" column="user_id" />
+		<result property="title" column="poi_name" />
+		<result property="lat" column="lat" />
+		<result property="lng" column="lng" />
+		<result property="description" column="poi_desc" />
+		<result property="startDate" column="sche_st_dt" />
+		<result property="endDate" column="sche_ed_dt" />
+		<result property="departTime" column="sche_st_tm" />
+		<result property="arriveTime" column="sche_ed_tm" />
+		<result property="type" column="poi_type" />
+
+		<result property="isBusiness" column="is_business" />
+	</resultMap>
+	
+
+	<select id="findAllSchedulesByUserId"
+		resultMap="ScheduleResultMap">
+		SELECT
+		sche_num,
+		sche_title,
+		MIN(sche_st_dt) AS sche_st_dt,
+		MAX(sche_ed_dt) AS sche_ed_dt,
+		MAX(is_importance) AS is_importance,
+		MAX(is_business) AS is_business,
+		MAX(sche_desc) AS sche_desc
+		FROM
+		tb_schedule
+		WHERE user_id = #{userId}
+		GROUP BY sche_num, sche_title
+		ORDER BY MIN(sche_st_dt) DESC
+	</select>
+
+	<select id="findByBusinessFlag" resultMap="ScheduleResultMap">
+		SELECT
+		sche_num,
+		sche_title,
+		MIN(sche_st_dt) AS sche_st_dt,
+		MAX(sche_ed_dt) AS
+		sche_ed_dt,
+		MAX(is_importance) AS is_importance,
+		MAX(is_business) AS
+		is_business,
+		MAX(sche_desc) AS sche_desc
+		FROM tb_schedule
+		WHERE user_id =
+		#{userId} AND is_business = #{isBusiness}
+		GROUP BY sche_num, sche_title
+		ORDER BY MIN(sche_st_dt) DESC
+	</select>
+
+	<select id="findImportantSchedules"
+		resultMap="ScheduleResultMap">
+		SELECT
+		sche_num,
+		sche_title,
+		MIN(sche_st_dt) AS sche_st_dt,
+		MAX(sche_ed_dt) AS sche_ed_dt,
+		MAX(is_importance) AS is_importance,
+		MAX(is_business) AS is_business,
+		MAX(sche_desc) AS sche_desc
+		FROM
+		tb_schedule
+		WHERE user_id = #{userId} AND is_importance = 'Y'
+		GROUP BY
+		sche_num, sche_title
+		ORDER BY MIN(sche_st_dt) DESC
+	</select>
+
+	<update id="updateImportanceByScheNum">
+		UPDATE tb_schedule
+		SET is_importance = CASE WHEN
+		is_importance = 'Y' THEN 'N' ELSE 'Y' END
+		WHERE sche_num = #{scheNum}
+	</update>
+
+	<delete id="deleteByScheNum">
+		DELETE FROM tb_schedule
+		WHERE sche_num = #{scheNum}
+	</delete>
+
+	<update id="updateSchedule">
+		UPDATE tb_schedule
+		SET sche_title = #{scheTitle},
+		sche_desc = #{scheDesc}
+		WHERE sche_num = #{scheNum}
+	</update>
+
+
+
+	<insert id="insertSchedule">
+
+		INSERT INTO tb_schedule (user_id, sche_title, sche_desc, sche_st_dt,
+		sche_ed_dt, sche_st_tm, sche_ed_tm, is_business, is_importance,
+		sche_num, poi_idx)
+		VALUES (#{userId}, #{scheTitle}, #{scheDesc}, #{scheStDt}, #{scheEdDt},
+		#{scheStTm}, #{scheEdTm}, #{isBusiness}, #{isImportance}, #{scheNum},
+		#{poiIdx})
+	</insert>
+
+
+	<select id="getLastScheNum" resultType="int">
+		SELECT
+		COALESCE(MAX(sche_num), 0) FROM tb_schedule
+	</select>
+
+	<select id="callInsertTravelCourse" statementType="CALLABLE"
+		parameterType="string" resultType="Integer">
+		{CALL InsertTravelCourse(#{jsonData,
+		jdbcType=LONGVARCHAR, mode=IN},
+		#{result, jdbcType=INTEGER, mode=OUT})}
+	</select>
+
+
+	<select id="callSaveScheduleWithPOI" statementType="CALLABLE">
+		{call SaveScheduleWithPOI(#{p_schedules,jdbcType=VARCHAR,mode=IN})}
+	</select>
+
+	<select id="patchschedule" parameterType="string"
+		resultMap="JsonMapping">
+		SELECT A.is_business, A.sche_num, A.user_id, B.poi_name,
+		B.lat, B.lng, B.poi_desc, A.sche_st_dt, A.sche_ed_dt, A.sche_st_tm,
+		A.sche_ed_tm, B.poi_type
+		FROM tb_schedule A
+		JOIN fake_poi B
+		ON A.poi_idx
+		= B.poi_idx
+		WHERE A.sche_num = #{sche_num}
+		ORDER BY A.sche_st_dt ASC,
+		A.sche_st_tm ASC
+	</select>
+	
+
+</mapper>
+
